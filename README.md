@@ -53,18 +53,52 @@ Restart Claude Desktop. You can now ask Claude about your training data!
    # Edit .env with your TrainingPeaks credentials
    ```
 
-3. Start the HTTP server:
+3. Build and start the HTTP server:
    ```bash
    npm run build
    npm run start:http
    ```
+   You should see: `TrainingPeaks MCP HTTP server running on port 3000`
 
-4. Expose via ngrok:
+4. Install ngrok (if not already installed):
+
+   **macOS (Homebrew):**
+   ```bash
+   brew install ngrok
+   ```
+
+   **Windows (Chocolatey):**
+   ```bash
+   choco install ngrok
+   ```
+
+   **Or download directly from:** https://ngrok.com/download
+
+5. Create a free ngrok account and get your auth token:
+   - Sign up at https://dashboard.ngrok.com/signup
+   - Copy your auth token from https://dashboard.ngrok.com/get-started/your-authtoken
+   - Configure ngrok with your token:
+     ```bash
+     ngrok config add-authtoken YOUR_AUTH_TOKEN
+     ```
+
+6. Start ngrok to expose your local server (in a new terminal):
    ```bash
    ngrok http 3000
    ```
 
-5. Add the ngrok URL as an MCP connector in ChatGPT settings.
+   ngrok will display output like:
+   ```
+   Forwarding   https://abc123.ngrok-free.app -> http://localhost:3000
+   ```
+   Copy the `https://...ngrok-free.app` URL.
+
+7. Add the MCP connector in ChatGPT:
+   - Go to ChatGPT Settings → Connectors → Add Connector
+   - Enter your ngrok URL with `/mcp` path: `https://abc123.ngrok-free.app/mcp`
+   - Save the connector
+
+8. Test by asking ChatGPT about your TrainingPeaks data!
 
 ## Available Tools
 
