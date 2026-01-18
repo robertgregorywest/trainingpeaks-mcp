@@ -1,0 +1,63 @@
+{
+  "name": "trainingpeaks-api",
+  "version": "0.1.0",
+  "description": "An API to allow programmatic access to your TrainingPeaks data",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "trainingpeaks",
+    "fitness",
+    "training",
+    "api"
+  ],
+  "author": "Rob West <robertgregorywest@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertgregorywest/trainingpeaks-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/robertgregorywest/trainingpeaks-api/issues"
+  },
+  "homepage": "https://github.com/robertgregorywest/trainingpeaks-api#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
+  },
+  "dependencies": {
+    "playwright": "^1.57.0",
+    "typescript-eslint": "^8.53.0"
+  }
+}

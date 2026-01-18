@@ -70,6 +70,9 @@ web_modules/
 .env.*
 !.env.example
 
+# Test scripts
+test-api.ts
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
