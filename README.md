@@ -1,6 +1,6 @@
-# trainingpeaks-api
+# trainingpeaks-mcp
 
-A TypeScript library for programmatic access to your TrainingPeaks data.
+A TypeScript library for access to your TrainingPeaks data.
 
 ## Installation
 
