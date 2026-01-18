@@ -47,10 +47,10 @@ Restart Claude Desktop. You can now ask Claude about your training data!
    npm install
    ```
 
-2. Set environment variables:
+2. Create `.env` file with your credentials:
    ```bash
-   export TP_USERNAME="your-email@example.com"
-   export TP_PASSWORD="your-password"
+   cp .env.example .env
+   # Edit .env with your TrainingPeaks credentials
    ```
 
 3. Start the HTTP server:
@@ -95,6 +95,19 @@ Restart Claude Desktop. You can now ask Claude about your training data!
 - "Download and parse the FIT file from yesterday's run"
 
 ## Environment Variables
+
+Create a `.env` file from the example:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` with your TrainingPeaks credentials:
+
+```
+TP_USERNAME=your-email@example.com
+TP_PASSWORD=your-password
+```
 
 | Variable | Description |
 |----------|-------------|
