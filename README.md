@@ -178,9 +178,31 @@ await client.close();
 ```bash
 npm run build        # Compile TypeScript
 npm run lint         # Run ESLint
-npm run test         # Run tests
+npm run test         # Run unit tests
 npm run typecheck    # Type-check without emitting
 ```
+
+### Integration Tests
+
+Integration tests make real API calls to TrainingPeaks to verify all endpoints work correctly.
+
+**Prerequisites:**
+1. Create `.env` file with your TrainingPeaks credentials (see [Environment Variables](#environment-variables))
+2. Install Playwright: `npx playwright install chromium`
+
+**Run integration tests:**
+```bash
+npm run test:integration
+```
+
+**What's tested:**
+- User API: `getUser`, `getAthleteId`
+- Workouts API: `getWorkouts`, `getWorkout`, `getWorkoutDetails`
+- Fitness API: `getCurrentFitness`, `getFitnessData`
+- Peaks API: `getAllPeaks`, `getPeaks`, `getWorkoutPeaks`, `getPowerPeaks`, `getRunningPeaks`
+- Files API: `downloadFitFile`
+
+Tests are skipped automatically if credentials are not available.
 
 ## How It Works
 

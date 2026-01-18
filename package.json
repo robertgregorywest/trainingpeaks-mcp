@@ -26,9 +26,10 @@
     "lint:fix": "eslint src --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest run --exclude tests/integration/**",
+    "test:watch": "vitest --exclude tests/integration/**",
+    "test:integration": "vitest run tests/integration",
+    "test:coverage": "vitest run --coverage --exclude tests/integration/**",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
