@@ -9,6 +9,12 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 - **FIT file parsing**: Extract structured data from downloaded FIT files
 - Also usable as a standalone TypeScript library
 
+## Prerequisites
+
+1. **TrainingPeaks account** - You need valid TrainingPeaks credentials
+2. **Node.js 20+**
+3. **Playwright Chromium** - Install with `npx playwright install chromium`
+
 ## Quick Start
 
 ### Claude Desktop
@@ -30,12 +36,6 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 }
 ```
 
-Install Playwright's Chromium (required for authentication):
-
-```bash
-npx playwright install chromium
-```
-
 Restart Claude Desktop. You can now ask Claude about your training data!
 
 ### ChatGPT (via HTTP)
@@ -45,7 +45,6 @@ Restart Claude Desktop. You can now ask Claude about your training data!
    git clone https://github.com/robertgregorywest/trainingpeaks-mcp.git
    cd trainingpeaks-mcp
    npm install
-   npx playwright install chromium
    ```
 
 2. Set environment variables:
@@ -139,11 +138,6 @@ npm run typecheck    # Type-check without emitting
 ## How It Works
 
 This library uses Playwright to automate browser login to TrainingPeaks, capturing the authentication token from API requests. The token is then used for subsequent API calls.
-
-## Requirements
-
-- Node.js 20+
-- Playwright Chromium browser
 
 ## License
 
