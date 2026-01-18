@@ -68,6 +68,7 @@
   "dependencies": {
     "@garmin/fitsdk": "^21.171.0",
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^17.2.3",
     "express": "^5.0.0",
     "playwright": "^1.57.0",
     "typescript-eslint": "^8.53.0",

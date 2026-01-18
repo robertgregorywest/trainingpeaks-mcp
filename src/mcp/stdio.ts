@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import 'dotenv/config';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { TrainingPeaksClient } from '../index.js';
 import { createMcpServer } from './server.js';
