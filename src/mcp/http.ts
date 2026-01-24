@@ -24,14 +24,27 @@ async function main() {
   await server.connect(transport);
 
   // Health check / info endpoint
-  app.get('/', (_req, res) => {
-    res.json({
-      name: 'trainingpeaks-mcp',
-      version: '0.1.0',
-      status: 'running',
-      mcp_endpoint: '/mcp',
-      usage: 'POST JSON-RPC requests to /mcp',
-    });
+  app.get('/', async (_req, res) => {
+    try {
+      const user = await client.getUser();
+      res.json({
+        name: 'trainingpeaks-mcp',
+        version: '0.1.0',
+        status: 'healthy',
+        authenticated: true,
+        user: user.email,
+        mcp_endpoint: '/mcp',
+      });
+    } catch (error) {
+      res.status(503).json({
+        name: 'trainingpeaks-mcp',
+        version: '0.1.0',
+        status: 'unhealthy',
+        authenticated: false,
+        error: error instanceof Error ? error.message : 'Authentication failed',
+        mcp_endpoint: '/mcp',
+      });
+    }
   });
 
   // MCP endpoint info for GET requests
