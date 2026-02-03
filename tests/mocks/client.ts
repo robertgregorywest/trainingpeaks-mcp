@@ -36,6 +36,18 @@ export const mockWorkoutSummary: WorkoutSummary = {
   hasFile: true,
 };
 
+export const mockStrengthWorkout: WorkoutSummary = {
+  workoutId: 101,
+  athleteId: 12345,
+  title: 'Weight Training',
+  workoutDay: '2024-01-16',
+  workoutType: 'Strength',
+  completedDate: '2024-01-16',
+  totalTime: 2700,
+  tssActual: 40,
+  hasFile: false,
+};
+
 export const mockWorkoutDetail: WorkoutDetail = {
   ...mockWorkoutSummary,
   metrics: {

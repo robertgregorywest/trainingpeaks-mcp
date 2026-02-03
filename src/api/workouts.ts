@@ -82,7 +82,7 @@ export class WorkoutsApi {
       athleteId: w.athleteId,
       title: w.title,
       workoutDay: w.workoutDay,
-      workoutType: w.userTags?.split(',')[0] || w.workoutTypeValueId?.toString() || w.workoutType || 'Unknown',
+      workoutType: w.workoutType || w.userTags?.split(',')[0] || 'Unknown',
       completedDate: w.startTime,
       description: w.description,
       totalTimePlanned: w.totalTimePlanned,
