@@ -4,7 +4,7 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 
 ## Features
 
-- **15 tools** for accessing workouts, fitness metrics, peaks/PRs, and files
+- **16 tools** for accessing workouts, fitness metrics, peaks/PRs, and files
 - **Dual transport**: stdio for Claude Desktop, HTTP for ChatGPT
 - **FIT file parsing**: Extract structured data from downloaded FIT files
 - Also usable as a standalone TypeScript library
@@ -109,7 +109,8 @@ Restart Claude Desktop. You can now ask Claude about your training data!
 | `get_workouts` | List workouts in a date range |
 | `get_workout` | Get single workout summary |
 | `get_workout_details` | Get workout with full metrics, intervals, laps, zones |
-| `download_fit_file` | Download FIT file (saves to temp path) |
+| `search_workouts` | Search workouts by title (case-insensitive) within a number of days |
+| `compare_intervals` | Compare laps/intervals side-by-side across workouts with power/duration filters |
 | `download_attachment` | Download workout attachment |
 | `parse_fit_file` | Parse FIT file and extract structured data |
 | `get_fitness_data` | Get CTL/ATL/TSB for date range |
@@ -127,6 +128,8 @@ Restart Claude Desktop. You can now ask Claude about your training data!
 - "What are my best 5-minute power efforts?"
 - "Get details for my most recent ride including heart rate zones"
 - "Download and parse the FIT file from yesterday's run"
+- "Search for all my tempo workouts in the last 30 days"
+- "Compare the intervals across my last 3 threshold rides"
 
 ## Environment Variables
 
@@ -200,7 +203,7 @@ npm run test:integration
 - Workouts API: `getWorkouts`, `getWorkout`, `getWorkoutDetails`
 - Fitness API: `getCurrentFitness`, `getFitnessData`
 - Peaks API: `getAllPeaks`, `getPeaks`, `getWorkoutPeaks`, `getPowerPeaks`, `getRunningPeaks`
-- Files API: `downloadFitFile`
+- Files API: `downloadActivityFile`
 
 Tests are skipped automatically if credentials are not available.
 
