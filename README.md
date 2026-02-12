@@ -134,7 +134,7 @@ Restart Claude Desktop. You can now ask Claude about your training data!
 - "Show me my current fitness (CTL, ATL, TSB)"
 - "What are my best 5-minute power efforts?"
 - "Get details for my most recent ride including heart rate zones"
-- "Download and parse the FIT file from yesterday's run"
+- "Download and parse the FIT file from yesterday's ride"
 - "Search for all my tempo workouts in the last 30 days"
 - "Compare the intervals across my last 3 threshold rides"
 
