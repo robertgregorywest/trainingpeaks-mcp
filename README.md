@@ -13,11 +13,18 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 
 1. **TrainingPeaks account** - You need valid TrainingPeaks credentials
 2. **Node.js 20+**
-3. **Playwright Chromium** - Install with `npx playwright install chromium`
 
 ## Quick Start
 
-### Claude Desktop
+### One-Click Install (MCPB)
+
+1. Download the latest `.mcpb` file from [Releases](https://github.com/robertgregorywest/trainingpeaks-mcp/releases)
+2. Open the `.mcpb` file in Claude Desktop
+3. Enter your TrainingPeaks credentials when prompted
+
+That's it — your tools are ready to use!
+
+### Manual Configuration (Claude Desktop)
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
@@ -191,7 +198,6 @@ Integration tests make real API calls to TrainingPeaks to verify all endpoints w
 
 **Prerequisites:**
 1. Create `.env` file with your TrainingPeaks credentials (see [Environment Variables](#environment-variables))
-2. Install Playwright: `npx playwright install chromium`
 
 **Run integration tests:**
 ```bash

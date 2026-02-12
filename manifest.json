@@ -1,0 +1,106 @@
+{
+  "manifest_version": "0.3",
+  "name": "trainingpeaks-mcp",
+  "display_name": "TrainingPeaks",
+  "description": "Access your TrainingPeaks training data — workouts, fitness metrics, peaks/PRs, and FIT files",
+  "author": {
+    "name": "Rob West",
+    "email": "robertgregorywest@gmail.com"
+  },
+  "repository": "https://github.com/robertgregorywest/trainingpeaks-mcp",
+  "license": "MIT",
+  "server": {
+    "type": "node",
+    "entry_point": "dist/mcp/stdio.js",
+    "mcp_config": {
+      "env": {
+        "TP_USERNAME": "{{tp_username}}",
+        "TP_PASSWORD": "{{tp_password}}"
+      }
+    }
+  },
+  "user_config": {
+    "tp_username": {
+      "type": "string",
+      "description": "Your TrainingPeaks email address",
+      "required": true
+    },
+    "tp_password": {
+      "type": "string",
+      "description": "Your TrainingPeaks password",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "tools": [
+    {
+      "name": "get_user",
+      "description": "Get the current user profile including athlete ID"
+    },
+    {
+      "name": "get_athlete_id",
+      "description": "Get just the athlete ID for the current user"
+    },
+    {
+      "name": "get_workouts",
+      "description": "Get a list of workouts within a date range"
+    },
+    {
+      "name": "get_workout",
+      "description": "Get a single workout summary by ID"
+    },
+    {
+      "name": "get_workout_details",
+      "description": "Get detailed workout data including metrics, intervals, laps, and zones"
+    },
+    {
+      "name": "search_workouts",
+      "description": "Search for workouts by title (case-insensitive substring match) within a number of days"
+    },
+    {
+      "name": "compare_intervals",
+      "description": "Compare laps/intervals side-by-side across multiple workouts with optional power and duration filters"
+    },
+    {
+      "name": "download_attachment",
+      "description": "Download a workout attachment"
+    },
+    {
+      "name": "parse_fit_file",
+      "description": "Parse a FIT file and extract structured data (sessions, laps, records)"
+    },
+    {
+      "name": "get_fitness_data",
+      "description": "Get fitness metrics (CTL, ATL, TSB) for a date range"
+    },
+    {
+      "name": "get_current_fitness",
+      "description": "Get current fitness metrics (CTL, ATL, TSB) for today"
+    },
+    {
+      "name": "get_peaks",
+      "description": "Get peaks/personal records for a specific sport and type"
+    },
+    {
+      "name": "get_all_peaks",
+      "description": "Get all peaks/personal records for a sport"
+    },
+    {
+      "name": "get_workout_peaks",
+      "description": "Get peaks/PRs achieved in a specific workout"
+    },
+    {
+      "name": "get_power_peaks",
+      "description": "Get cycling power peaks (convenience method for bike power PRs)"
+    },
+    {
+      "name": "get_running_peaks",
+      "description": "Get running pace peaks (convenience method for running PRs)"
+    }
+  ],
+  "compatibility": {
+    "runtimes": {
+      "node": ">=20.0.0"
+    }
+  }
+}
