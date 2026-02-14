@@ -12,7 +12,7 @@
     }
   },
   "bin": {
-    "trainingpeaks-mcp": "./dist/mcp/stdio.js",
+    "trainingpeaks-mcp": "./dist/mcp/stdio-wrapper.cjs",
     "trainingpeaks-mcp-http": "./dist/mcp/http.js"
   },
   "files": [
