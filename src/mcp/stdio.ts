@@ -1,20 +1,30 @@
 #!/usr/bin/env node
 import 'dotenv/config';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { spawn } from 'child_process';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { TrainingPeaksClient } from '../index.js';
 import { createMcpServer } from './server.js';
 
-const execAsync = promisify(exec);
-
-async function ensurePlaywrightChromium(): Promise<void> {
+function ensurePlaywrightChromium(): Promise<void> {
   console.error('[trainingpeaks-mcp] Ensuring Playwright Chromium is installed...');
-  try {
-    await execAsync('npx playwright install chromium');
-  } catch (error) {
-    console.error('[trainingpeaks-mcp] Warning: Failed to install Chromium:', error);
-  }
+  return new Promise((resolve) => {
+    const child = spawn('npx', ['playwright', 'install', 'chromium'], {
+      stdio: ['ignore', 'ignore', 'pipe'],
+    });
+    child.stderr?.on('data', (data: Buffer) => {
+      console.error(`[trainingpeaks-mcp] playwright: ${data.toString().trim()}`);
+    });
+    child.on('close', (code) => {
+      if (code !== 0) {
+        console.error(`[trainingpeaks-mcp] Warning: Playwright install exited with code ${code}`);
+      }
+      resolve();
+    });
+    child.on('error', (error) => {
+      console.error('[trainingpeaks-mcp] Warning: Failed to install Chromium:', error);
+      resolve();
+    });
+  });
 }
 
 async function main() {
