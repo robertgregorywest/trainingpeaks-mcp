@@ -49,6 +49,7 @@ The GitHub Action (`.github/workflows/release.yml`) automatically creates the re
   - Broken: `"args": ["dist/mcp/stdio.js"]`
 - **Never use `console.log`** in stdio MCP servers — it writes to stdout and corrupts the JSON-RPC transport. Use `console.error` for all logging.
 - **Avoid top-level imports of heavy/optional deps** (e.g., `playwright`) — use dynamic `import()` inside functions to prevent import-time crashes
+- Manifest env vars use `${user_config.key}` syntax (NOT `{{key}}`)
 - Claude Desktop does NOT use `package.json` `bin` or `main` fields — only `manifest.json` `server.mcp_config`
 - Install location: `~/Library/Application Support/Claude/Claude Extensions/<extension-id>/`
 
