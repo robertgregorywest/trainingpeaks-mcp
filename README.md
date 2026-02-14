@@ -9,24 +9,19 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 - **FIT file parsing**: Extract structured data from downloaded FIT files
 - Also usable as a standalone TypeScript library
 
-## Prerequisites
-
-1. **TrainingPeaks account** - You need valid TrainingPeaks credentials
-2. **Node.js 20+**
-
 ## Quick Start
 
-### One-Click Install (MCPB)
+### One-Click Install (Claude Desktop)
 
 1. Download the latest `.mcpb` file from [Releases](https://github.com/robertgregorywest/trainingpeaks-mcp/releases)
-2. Open the `.mcpb` file in Claude Desktop
+2. Double-click the `.mcpb` file — Claude Desktop will open and prompt you to install
 3. Enter your TrainingPeaks credentials when prompted
 
-That's it — your tools are ready to use!
+That's it — no Node.js installation required. Claude Desktop bundles its own runtime.
 
 ### Manual Configuration (Claude Desktop)
 
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+Requires **Node.js 20+**. Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
 ```json
 {
@@ -46,6 +41,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 Restart Claude Desktop. You can now ask Claude about your training data!
 
 ### ChatGPT (via HTTP)
+
+Requires **Node.js 20+**.
 
 1. Clone and install:
    ```bash
