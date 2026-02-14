@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.3",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "name": "trainingpeaks-mcp",
   "display_name": "TrainingPeaks",
   "description": "Access your TrainingPeaks training data — workouts, fitness metrics, peaks/PRs, and FIT files",
