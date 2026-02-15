@@ -39,6 +39,15 @@ import {
 } from './tools/fitness.js';
 
 import {
+  getCurrentDatetimeSchema,
+  getCurrentDateSchema,
+  getCurrentTimeSchema,
+  getCurrentDatetime,
+  getCurrentDate,
+  getCurrentTime,
+} from './tools/datetime.js';
+
+import {
   getPeaksSchema,
   getAllPeaksSchema,
   getWorkoutPeaksSchema,
@@ -199,6 +208,28 @@ export function createMcpServer(client: TrainingPeaksClient): McpServer {
     'Get running pace peaks (convenience method for running PRs)',
     getRunningPeaksSchema.shape,
     withLogging('get_running_peaks', (args) => getRunningPeaks(client, args))
+  );
+
+  // Datetime tools
+  server.tool(
+    'get_current_datetime',
+    'Get the current date and time in various formats with optional timezone',
+    getCurrentDatetimeSchema.shape,
+    withLogging('get_current_datetime', (args) => getCurrentDatetime(args))
+  );
+
+  server.tool(
+    'get_current_date',
+    'Get the current date in various formats (ISO, US, EU, custom)',
+    getCurrentDateSchema.shape,
+    withLogging('get_current_date', (args) => getCurrentDate(args))
+  );
+
+  server.tool(
+    'get_current_time',
+    'Get the current time in various formats (24h, 12h, custom)',
+    getCurrentTimeSchema.shape,
+    withLogging('get_current_time', (args) => getCurrentTime(args))
   );
 
   return server;
