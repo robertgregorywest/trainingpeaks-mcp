@@ -28,12 +28,7 @@ import {
   getStrengthWorkouts,
 } from './tools/workouts.js';
 
-import {
-  downloadAttachmentSchema,
-  parseFitFileSchema,
-  downloadAttachment,
-  parseFitFile,
-} from './tools/files.js';
+import { parseFitFileSchema, parseFitFile } from './tools/files.js';
 
 import {
   getFitnessDataSchema,
@@ -141,13 +136,6 @@ export function createMcpServer(client: TrainingPeaksClient): McpServer {
   );
 
   // File tools
-  tool(
-    'download_attachment',
-    'Download a workout attachment. Returns the file path where it was saved.',
-    downloadAttachmentSchema.shape,
-    (args) => downloadAttachment(client, args)
-  );
-
   tool(
     'parse_fit_file',
     'Parse a FIT file and extract structured data (sessions, laps, records)',

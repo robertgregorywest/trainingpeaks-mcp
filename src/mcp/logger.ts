@@ -91,9 +91,6 @@ function summarizeResponse(toolName: string, data: unknown): string {
         }
         break;
 
-      case 'download_attachment':
-        return `${COLORS.magenta}${parsed.filePath}${COLORS.reset} (${formatBytes(parsed.size)})`;
-
       case 'parse_fit_file': {
         const sessions = parsed.sessions?.length || 0;
         const laps = parsed.laps?.length || 0;
@@ -106,10 +103,4 @@ function summarizeResponse(toolName: string, data: unknown): string {
   } catch {
     return COLORS.dim + 'OK' + COLORS.reset;
   }
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }

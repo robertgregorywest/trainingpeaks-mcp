@@ -4,7 +4,7 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 
 ## Features
 
-- **17 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, files, and date resolution
+- **16 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, files, and date resolution
 - **Dual transport**: stdio for Claude Desktop, HTTP for ChatGPT
 - **FIT file parsing**: Extract structured data from downloaded FIT files
 - Also usable as a standalone TypeScript library
@@ -116,7 +116,6 @@ Requires **Node.js 20+**.
 | `search_workouts` | Search workouts by title (case-insensitive) within a number of days |
 | `compare_intervals` | Compare laps/intervals side-by-side across workouts with power/duration filters |
 | `get_strength_workouts` | Get strength workouts in a date range (sets, blocks, exercises, compliance) |
-| `download_attachment` | Download workout attachment |
 | `parse_fit_file` | Parse FIT file and extract structured data |
 | `get_fitness_data` | Get CTL/ATL/TSB for date range |
 | `get_current_fitness` | Get today's fitness metrics |

@@ -1,38 +1,10 @@
 import { z } from 'zod';
 import * as fs from 'node:fs/promises';
-import * as os from 'node:os';
-import * as path from 'node:path';
-import type { TrainingPeaksClient } from '../../index.js';
 import { decodeFitBuffer } from './fit-utils.js';
-
-export const downloadAttachmentSchema = z.object({
-  workoutId: z.number().describe('The workout ID'),
-  attachmentId: z.number().describe('The attachment ID'),
-});
 
 export const parseFitFileSchema = z.object({
   filePath: z.string().describe('Path to the FIT file to parse'),
 });
-
-export async function downloadAttachment(
-  client: TrainingPeaksClient,
-  args: z.infer<typeof downloadAttachmentSchema>
-): Promise<string> {
-  const buffer = await client.downloadAttachment(args.workoutId, args.attachmentId);
-  const tempDir = os.tmpdir();
-  const filePath = path.join(tempDir, `attachment_${args.workoutId}_${args.attachmentId}`);
-  await fs.writeFile(filePath, buffer);
-  return JSON.stringify(
-    {
-      success: true,
-      filePath,
-      size: buffer.length,
-      message: `Attachment saved to ${filePath}`,
-    },
-    null,
-    2
-  );
-}
 
 export async function parseFitFile(args: z.infer<typeof parseFitFileSchema>): Promise<string> {
   const buffer = await fs.readFile(args.filePath);

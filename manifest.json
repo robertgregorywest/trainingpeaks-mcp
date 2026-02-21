@@ -74,10 +74,6 @@
       "description": "Get strength workouts within a date range (sets, blocks, exercises, compliance)"
     },
     {
-      "name": "download_attachment",
-      "description": "Download a workout attachment"
-    },
-    {
       "name": "parse_fit_file",
       "description": "Parse a FIT file and extract structured data (sessions, laps, records)"
     },
