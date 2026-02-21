@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.3",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "name": "trainingpeaks-mcp",
   "display_name": "TrainingPeaks",
   "description": "Access your TrainingPeaks training data — workouts, fitness metrics, peaks/PRs, and FIT files",
@@ -94,20 +94,8 @@
       "description": "Get peaks/personal records for a specific sport and type"
     },
     {
-      "name": "get_all_peaks",
-      "description": "Get all peaks/personal records for a sport"
-    },
-    {
       "name": "get_workout_peaks",
       "description": "Get peaks/PRs achieved in a specific workout"
-    },
-    {
-      "name": "get_power_peaks",
-      "description": "Get cycling power peaks (convenience method for bike power PRs)"
-    },
-    {
-      "name": "get_running_peaks",
-      "description": "Get running pace peaks (convenience method for running PRs)"
     },
     {
       "name": "get_best_power",
