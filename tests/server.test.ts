@@ -35,6 +35,7 @@ describe('MCP Server', () => {
         'get_workout_peaks',
         'get_best_power',
         'get_power_duration_curve',
+        'get_aerobic_decoupling',
         'get_current_date',
       ];
 

@@ -223,6 +223,24 @@ export interface PowerDurationCurveResult {
   warnings: string[];
 }
 
+// Aerobic Decoupling
+export interface AerobicDecouplingHalf {
+  avgPower: number;
+  avgHR: number;
+  hrPowerRatio: number;
+}
+
+export interface AerobicDecouplingResult {
+  workoutId: number;
+  workoutDate: string;
+  workoutTitle?: string;
+  totalRecords: number;
+  firstHalf: AerobicDecouplingHalf;
+  secondHalf: AerobicDecouplingHalf;
+  decouplingPercent: number;
+  interpretation: string;
+}
+
 // API Options
 export interface GetWorkoutsOptions {
   includeDeleted?: boolean;

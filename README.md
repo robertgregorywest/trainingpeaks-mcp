@@ -4,7 +4,7 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 
 ## Features
 
-- **16 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, files, and date resolution
+- **17 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, aerobic decoupling, files, and date resolution
 - **Dual transport**: stdio for Claude Desktop, HTTP for ChatGPT
 - **FIT file parsing**: Extract structured data from downloaded FIT files
 - Also usable as a standalone TypeScript library
@@ -123,6 +123,7 @@ Requires **Node.js 20+**.
 | `get_workout_peaks` | Get PRs from specific workout |
 | `get_best_power` | Compute best power from raw FIT file for arbitrary durations (e.g., 3min, 8min, 45min) |
 | `get_power_duration_curve` | Build a power-duration curve across cycling workouts in a date range |
+| `get_aerobic_decoupling` | Calculate aerobic decoupling (Pw:Hr) from a workout — measures cardiac drift |
 | `get_current_date` | Get current date in ISO, US, EU, or custom format |
 
 ## Example Prompts
@@ -136,6 +137,7 @@ Requires **Node.js 20+**.
 - "Compare the intervals across my last 3 threshold rides"
 - "What's my best 3-minute and 8-minute power from yesterday's ride?"
 - "Build my power-duration curve for the last 6 weeks"
+- "What's the aerobic decoupling for my last long ride?"
 - "What is today's date?"
 
 ## Environment Variables
@@ -185,6 +187,10 @@ const curve = await client.getPowerDurationCurve({
   endDate: '2024-12-15',
 });
 console.log(curve.curve.map((p) => `${p.durationLabel}: ${p.bestPowerWatts}W`));
+
+// Aerobic decoupling analysis
+const decoupling = await client.getAerobicDecoupling(workouts[0].workoutId);
+console.log(`Decoupling: ${decoupling.decouplingPercent}% — ${decoupling.interpretation}`);
 
 // Clean up when done
 await client.close();

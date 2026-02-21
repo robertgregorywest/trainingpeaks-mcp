@@ -53,6 +53,11 @@ import {
   getWorkoutPeaks,
 } from './tools/peaks.js';
 
+import {
+  getAerobicDecouplingSchema,
+  getAerobicDecoupling,
+} from './tools/decoupling.js';
+
 type ToolResult = { content: Array<{ type: 'text'; text: string }> };
 
 export function createMcpServer(client: TrainingPeaksClient): McpServer {
@@ -186,6 +191,14 @@ export function createMcpServer(client: TrainingPeaksClient): McpServer {
     'Build a power-duration curve across cycling workouts in a date range, finding best power at standardised durations via FIT file analysis',
     getPowerDurationCurveSchema.shape,
     (args) => getPowerDurationCurve(client, args)
+  );
+
+  // Decoupling tools
+  tool(
+    'get_aerobic_decoupling',
+    'Calculate aerobic decoupling (Pw:Hr) from a workout FIT file — measures cardiac drift between first and second halves',
+    getAerobicDecouplingSchema.shape,
+    (args) => getAerobicDecoupling(client, args)
   );
 
   // Datetime tools

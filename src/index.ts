@@ -9,6 +9,8 @@ import {
   buildPowerDurationCurve,
   type BuildPowerDurationCurveOptions,
 } from './mcp/tools/power.js';
+import { computeAerobicDecoupling } from './mcp/tools/decoupling.js';
+import { decodeFitBuffer } from './mcp/tools/fit-utils.js';
 import type {
   ClientOptions,
   User,
@@ -23,6 +25,7 @@ import type {
   GetWorkoutsOptions,
   GetPeaksOptions,
   PowerDurationCurveResult,
+  AerobicDecouplingResult,
 } from './types.js';
 
 export class TrainingPeaksClient {
@@ -128,6 +131,34 @@ export class TrainingPeaksClient {
     return buildPowerDurationCurve(this, options);
   }
 
+  // Aerobic decoupling
+  async getAerobicDecoupling(workoutId: number): Promise<AerobicDecouplingResult> {
+    const workout = await this.getWorkout(workoutId);
+    const buffer = await this.downloadActivityFile(workoutId);
+    if (!buffer) {
+      throw new Error(`No activity file available for workout ${workoutId}`);
+    }
+    const messages = await decodeFitBuffer(buffer);
+    const recordMesgs = messages.recordMesgs;
+    if (!recordMesgs || recordMesgs.length === 0) {
+      throw new Error('No record data found in FIT file');
+    }
+    const powerStream: number[] = recordMesgs.map(
+      (r: Record<string, unknown>) => (typeof r.power === 'number' ? r.power : 0)
+    );
+    const hrStream: number[] = recordMesgs.map(
+      (r: Record<string, unknown>) => (typeof r.heartRate === 'number' ? r.heartRate : 0)
+    );
+    const decoupling = computeAerobicDecoupling(powerStream, hrStream);
+    return {
+      workoutId,
+      workoutDate: workout.workoutDay,
+      workoutTitle: workout.title,
+      totalRecords: recordMesgs.length,
+      ...decoupling,
+    };
+  }
+
   // Cleanup
   async close(): Promise<void> {
     await this.authManager.close();
@@ -161,6 +192,8 @@ export type {
   AuthToken,
   PowerDurationPoint,
   PowerDurationCurveResult,
+  AerobicDecouplingResult,
+  AerobicDecouplingHalf,
 } from './types.js';
 
 // Export error class
