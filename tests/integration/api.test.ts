@@ -123,6 +123,75 @@ describe.skipIf(!hasCredentials)('TrainingPeaks API Integration', () => {
     });
   });
 
+  describe('Strength Workouts API', () => {
+    it('getStrengthWorkouts returns array', async () => {
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const workouts = await client.getStrengthWorkouts(startDate, endDate);
+
+      expect(Array.isArray(workouts)).toBe(true);
+      if (workouts.length > 0) {
+        expect(workouts[0].workoutId).toBeTypeOf('string');
+        expect(workouts[0].workoutType).toBe('StructuredStrength');
+        expect(Array.isArray(workouts[0].exercises)).toBe(true);
+      }
+    });
+  });
+
+  describe('Activity Files API', () => {
+    const bikeWorkoutId = process.env.TP_TEST_BIKE_WORKOUT_ID
+      ? Number(process.env.TP_TEST_BIKE_WORKOUT_ID)
+      : undefined;
+
+    it.skipIf(!bikeWorkoutId)('downloadActivityFile returns Buffer for workout with file', async () => {
+      const buffer = await client.downloadActivityFile(bikeWorkoutId!);
+
+      expect(buffer).not.toBeNull();
+      expect(buffer!.length).toBeGreaterThan(0);
+    });
+
+    it('downloadActivityFile throws for non-existent workout', async () => {
+      // The API returns 403 for workout IDs that don't belong to the user
+      await expect(client.downloadActivityFile(999999999)).rejects.toThrow();
+    });
+  });
+
+  describe('Power Duration Curve API', () => {
+    const bikeWorkoutId = process.env.TP_TEST_BIKE_WORKOUT_ID
+      ? Number(process.env.TP_TEST_BIKE_WORKOUT_ID)
+      : undefined;
+
+    it.skipIf(!bikeWorkoutId)('getPowerDurationCurve returns curve data', async () => {
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const result = await client.getPowerDurationCurve({ startDate, endDate });
+
+      expect(result.workoutsAnalysed).toBeTypeOf('number');
+      expect(Array.isArray(result.curve)).toBe(true);
+      if (result.curve.length > 0) {
+        expect(result.curve[0].durationSeconds).toBeTypeOf('number');
+        expect(result.curve[0].bestPowerWatts).toBeTypeOf('number');
+      }
+    });
+  });
+
+  describe('Aerobic Decoupling API', () => {
+    const bikeWorkoutId = process.env.TP_TEST_BIKE_WORKOUT_ID
+      ? Number(process.env.TP_TEST_BIKE_WORKOUT_ID)
+      : undefined;
+
+    it.skipIf(!bikeWorkoutId)('getAerobicDecoupling returns decoupling data', async () => {
+      const result = await client.getAerobicDecoupling(bikeWorkoutId!);
+
+      expect(result.decouplingPercent).toBeTypeOf('number');
+      expect(result.firstHalf).toBeDefined();
+      expect(result.secondHalf).toBeDefined();
+      expect(result.interpretation).toBeTypeOf('string');
+    });
+  });
+
   describe('Peaks API', () => {
     it('getPeaks returns power peaks for Bike', async () => {
       const peaks = await client.getPeaks('Bike', 'power5min');
