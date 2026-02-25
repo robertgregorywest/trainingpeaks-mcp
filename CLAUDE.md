@@ -27,19 +27,7 @@ npm run typecheck    # Type-check without emitting
 
 ## Release Process
 
-When creating a release, bump the version in **all three** files:
-
-1. `package.json` — `"version"` field
-2. `package-lock.json` — run `npm install --package-lock-only` after updating package.json
-3. `manifest.json` — `"version"` field (MCPB manifest shown in Claude Desktop)
-
-Then:
-
-1. Commit the version bump (message: `<version>`)
-2. Tag: `git tag v<version>`
-3. Push commit and tag: `git push && git push origin v<version>`
-
-The GitHub Action (`.github/workflows/release.yml`) automatically creates the release with the MCPB bundle when a `v*` tag is pushed.
+Use `/release` to create a new release.
 
 ## MCPB / Claude Desktop Gotchas
 
