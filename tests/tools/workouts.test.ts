@@ -193,8 +193,8 @@ describe('workout tools', () => {
   describe('parseLapsFromFit', () => {
     it('should parse FIT lap messages into WorkoutLap array', async () => {
       setupFitMock([
-        { avgPower: 200, maxPower: 400, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 145, maxHeartRate: 170 },
-        { avgPower: 230, maxPower: 480, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 155, maxHeartRate: 180 },
+        { avgPower: 200, maxPower: 400, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 145, maxHeartRate: 170, avgCadence: 85 },
+        { avgPower: 230, maxPower: 480, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 155, maxHeartRate: 180, avgCadence: 90 },
       ]);
 
       const laps = await parseLapsFromFit(Buffer.from('fake'));
@@ -207,9 +207,11 @@ describe('workout tools', () => {
         distance: 20000,
         averageHeartRate: 145,
         maxHeartRate: 170,
+        averageCadence: 85,
       });
       expect(laps[1].lapNumber).toBe(2);
       expect(laps[1].averagePower).toBe(230);
+      expect(laps[1].averageCadence).toBe(90);
     });
 
     it('should return empty array for invalid FIT file', async () => {
@@ -227,11 +229,11 @@ describe('workout tools', () => {
 
   describe('compareIntervals', () => {
     const fitLaps1 = [
-      { avgPower: 200, maxPower: 400, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 145, maxHeartRate: 170 },
+      { avgPower: 200, maxPower: 400, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 145, maxHeartRate: 170, avgCadence: 85 },
     ];
     const fitLaps2 = [
-      { avgPower: 210, maxPower: 420, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 150, maxHeartRate: 175 },
-      { avgPower: 230, maxPower: 480, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 155, maxHeartRate: 180 },
+      { avgPower: 210, maxPower: 420, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 150, maxHeartRate: 175, avgCadence: 88 },
+      { avgPower: 230, maxPower: 480, totalElapsedTime: 1800, totalDistance: 20000, avgHeartRate: 155, maxHeartRate: 180, avgCadence: 92 },
     ];
 
     it('should compare laps across workouts side-by-side', async () => {
@@ -254,11 +256,15 @@ describe('workout tools', () => {
       expect(parsed.laps[0].lapNumber).toBe(1);
       expect(parsed.laps[0].values).toHaveLength(2);
       expect(parsed.laps[0].values[0].avgPower).toBe(200);
+      expect(parsed.laps[0].values[0].avgCadence).toBe(85);
       expect(parsed.laps[0].values[1].avgPower).toBe(210);
+      expect(parsed.laps[0].values[1].avgCadence).toBe(88);
 
-      // Lap 2: workout 100 has no lap 2, so avgPower is undefined
+      // Lap 2: workout 100 has no lap 2, so avgPower/avgCadence are undefined
       expect(parsed.laps[1].values[0].avgPower).toBeUndefined();
+      expect(parsed.laps[1].values[0].avgCadence).toBeUndefined();
       expect(parsed.laps[1].values[1].avgPower).toBe(230);
+      expect(parsed.laps[1].values[1].avgCadence).toBe(92);
 
       // Verify downloadActivityFile was called for each workout
       expect(mockClient.downloadActivityFile).toHaveBeenCalledWith(100);
@@ -329,6 +335,7 @@ describe('workout tools', () => {
       expect(summary.minPower).toBe(210);
       expect(summary.maxPower).toBe(230);
       expect(summary.powerRange).toBe(20);
+      expect(summary.avgCadence).toBe(90); // (88+92)/2
       expect(summary.totalDuration).toBe(3600);
     });
 
@@ -379,7 +386,7 @@ describe('workout tools', () => {
 
     it('should compare 3+ workouts side-by-side', async () => {
       const fitLaps3 = [
-        { avgPower: 250, maxPower: 500, totalElapsedTime: 1800, totalDistance: 22000, avgHeartRate: 160, maxHeartRate: 185 },
+        { avgPower: 250, maxPower: 500, totalElapsedTime: 1800, totalDistance: 22000, avgHeartRate: 160, maxHeartRate: 185, avgCadence: 95 },
       ];
 
       mockClient.getWorkoutDetails

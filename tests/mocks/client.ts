@@ -80,6 +80,7 @@ export const mockWorkoutDetail: WorkoutDetail = {
       maxHeartRate: 170,
       averagePower: 200,
       maxPower: 400,
+      averageCadence: 85,
     },
   ],
 };
@@ -159,6 +160,7 @@ export const mockWorkoutDetail2: WorkoutDetail = {
       distance: 20000,
       averagePower: 210,
       maxPower: 420,
+      averageCadence: 88,
     },
     {
       lapNumber: 2,
@@ -166,6 +168,7 @@ export const mockWorkoutDetail2: WorkoutDetail = {
       distance: 20000,
       averagePower: 230,
       maxPower: 480,
+      averageCadence: 92,
     },
   ],
 };

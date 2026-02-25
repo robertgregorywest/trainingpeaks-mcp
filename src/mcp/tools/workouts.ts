@@ -103,6 +103,7 @@ interface LapValue {
   date?: string;
   avgPower?: number;
   maxPower?: number;
+  avgCadence?: number;
   duration?: number;
 }
 
@@ -120,6 +121,7 @@ interface WorkoutSummaryResult {
   minPower: number | null;
   maxPower: number | null;
   powerRange: number | null;
+  avgCadence: number | null;
   totalDuration: number;
 }
 
@@ -153,6 +155,8 @@ function buildSummary(
   const minPower = powers.length > 0 ? powers.reduce((a, b) => (b < a ? b : a), powers[0]) : null;
   const maxPower = powers.length > 0 ? powers.reduce((a, b) => (b > a ? b : a), powers[0]) : null;
   const powerRange = minPower !== null && maxPower !== null ? maxPower - minPower : null;
+  const cadences = laps.map((l) => l.averageCadence).filter((c): c is number => c !== undefined);
+  const avgCadence = cadences.length > 0 ? Math.round(cadences.reduce((a, b) => a + b, 0) / cadences.length) : null;
   const totalDuration = laps.reduce((sum, l) => sum + (l.duration ?? 0), 0);
 
   return {
@@ -164,6 +168,7 @@ function buildSummary(
     minPower,
     maxPower,
     powerRange,
+    avgCadence,
     totalDuration,
   };
 }
@@ -189,6 +194,7 @@ export async function parseLapsFromFit(buffer: Buffer): Promise<WorkoutLap[]> {
     maxHeartRate: lap.maxHeartRate as number | undefined,
     averagePower: lap.avgPower as number | undefined,
     maxPower: lap.maxPower as number | undefined,
+    averageCadence: lap.avgCadence as number | undefined,
   }));
 }
 
@@ -238,6 +244,7 @@ export async function compareIntervals(
         date: w.detail.completedDate ?? w.detail.workoutDay,
         avgPower: lap?.averagePower,
         maxPower: lap?.maxPower,
+        avgCadence: lap?.averageCadence,
         duration: lap?.duration,
       };
     });
