@@ -155,11 +155,12 @@ TP_USERNAME=your-email@example.com
 TP_PASSWORD=your-password
 ```
 
-| Variable | Description |
-|----------|-------------|
-| `TP_USERNAME` | TrainingPeaks email address |
-| `TP_PASSWORD` | TrainingPeaks password |
-| `PORT` | HTTP server port (default: 3000) |
+| Variable | Description | Optional |
+|----------|-------------|----------|
+| `TP_USERNAME` | TrainingPeaks email address | No |
+| `TP_PASSWORD` | TrainingPeaks password | No |
+| `PORT` | HTTP server port (default: 3000) | Yes |
+| `TP_TEST_BIKE_WORKOUT_ID` | Bike workout ID with FIT file, power, and HR data (for integration tests) | Yes |
 
 ## Library Usage
 
