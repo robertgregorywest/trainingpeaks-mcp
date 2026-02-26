@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.3",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "name": "trainingpeaks-mcp",
   "display_name": "TrainingPeaks",
   "description": "Access your TrainingPeaks training data — workouts, fitness metrics, peaks/PRs, and FIT files",
@@ -104,6 +104,10 @@
     {
       "name": "get_aerobic_decoupling",
       "description": "Calculate aerobic decoupling (Pw:Hr) from a workout FIT file — measures cardiac drift between first and second halves"
+    },
+    {
+      "name": "clear_fit_cache",
+      "description": "Clear all cached FIT files downloaded from TrainingPeaks"
     },
     {
       "name": "get_current_date",
