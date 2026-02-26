@@ -11,6 +11,20 @@ const PEAKSWARE_API_BASE = 'https://api.peakswaresb.com';
 
 const MAX_DATE_RANGE_DAYS = 90;
 
+/** Map workoutTypeValueId → sport name when the API omits the workoutType string. */
+const WORKOUT_TYPE_VALUE_MAP: Record<number, string> = {
+  1: 'Swim',
+  2: 'Bike',
+  3: 'Run',
+  4: 'Brick',
+  5: 'CrossTrain',
+  6: 'RestDay',
+  7: 'Strength',
+  8: 'Custom',
+  9: 'Walk',
+  10: 'Other',
+};
+
 export class WorkoutsApi {
   private client: HttpClient;
   private userApi: UserApi;
@@ -130,7 +144,7 @@ export class WorkoutsApi {
       athleteId: w.athleteId,
       title: w.title,
       workoutDay: w.workoutDay,
-      workoutType: w.workoutType || w.userTags?.split(',')[0] || 'Unknown',
+      workoutType: w.workoutType || WORKOUT_TYPE_VALUE_MAP[w.workoutTypeValueId ?? -1] || w.userTags?.split(',')[0] || 'Unknown',
       completedDate: w.startTime,
       description: w.description,
       totalTimePlanned: w.totalTimePlanned,

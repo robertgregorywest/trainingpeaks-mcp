@@ -38,6 +38,7 @@
     "explore:fitness": "tsx scripts/explore-fitness.ts",
     "explore:strength": "tsx scripts/explore-strength.ts",
     "explore:peaks": "tsx scripts/explore-peaks.ts",
+    "explore:power-curve": "tsx scripts/explore-power-curve.ts",
     "mcpb:pack": "mcpb pack"
   },
   "keywords": [

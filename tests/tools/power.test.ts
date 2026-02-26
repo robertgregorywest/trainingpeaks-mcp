@@ -191,9 +191,9 @@ describe('power tools', () => {
     it('should filter to cycling workouts only', async () => {
       // Return a mix of cycling and non-cycling workouts
       mockClient.getWorkouts.mockResolvedValue([
-        mockWorkoutSummary, // Bike, hasFile
-        mockWorkoutSummary3, // Run, hasFile
-        mockStrengthWorkout, // Strength, no file
+        mockWorkoutSummary, // Bike
+        mockWorkoutSummary3, // Run
+        mockStrengthWorkout, // Strength
       ]);
       const records = Array.from({ length: 60 }, () => ({ power: 250 }));
       setupFitMock(records);

@@ -248,20 +248,21 @@ describe.skipIf(!hasCredentials)('MCP Tools Integration', () => {
   });
 
   describe('get_power_duration_curve', () => {
-    it.skipIf(!bikeWorkoutId)('returns curve with workoutsAnalysed and durationLabel', async () => {
+    it('returns curve with workoutsAnalysed and durationLabel', async () => {
       const raw = await getPowerDurationCurve(client, {
-        startDate: daysAgo(30),
+        startDate: daysAgo(90),
         endDate: today,
         durations: [5, 60, 300],
       });
       const data = JSON.parse(raw);
 
       expect(data.workoutsAnalysed).toBeTypeOf('number');
+      expect(data.workoutsAnalysed).toBeGreaterThan(0);
       expect(Array.isArray(data.curve)).toBe(true);
-      if (data.curve.length > 0) {
-        expect(data.curve[0].durationLabel).toBeTypeOf('string');
-        expect(data.curve[0].bestPowerWatts).toBeTypeOf('number');
-      }
+      expect(data.curve.length).toBeGreaterThan(0);
+      expect(data.curve[0].durationLabel).toBeTypeOf('string');
+      expect(data.curve[0].bestPowerWatts).toBeTypeOf('number');
+      expect(data.curve[0].workoutId).toBeTypeOf('number');
     });
   });
 

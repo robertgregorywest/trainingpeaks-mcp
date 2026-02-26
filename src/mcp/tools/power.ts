@@ -140,7 +140,7 @@ export async function buildPowerDurationCurve(
 
   const allWorkouts = await client.getWorkouts(args.startDate, args.endDate);
   const cyclingWorkouts = allWorkouts.filter(
-    (w) => w.workoutType === 'Bike' && w.hasFile && !excludeSet.has(w.workoutId)
+    (w) => w.workoutType === 'Bike' && !excludeSet.has(w.workoutId)
   );
 
   const warnings: string[] = [];

@@ -38,13 +38,27 @@ describe('WorkoutsApi', () => {
       expect(workouts[0].workoutType).toBe('Strength');
     });
 
-    it('should fall back to userTags when workoutType is missing', async () => {
+    it('should fall back to workoutTypeValueId lookup when workoutType string is missing', async () => {
       vi.mocked(mockHttpClient.request).mockResolvedValue([
         {
           workoutId: 1,
           athleteId: 12345,
           workoutDay: '2024-01-15',
-          workoutTypeValueId: 7,
+          workoutTypeValueId: 2,
+        },
+      ]);
+
+      const workouts = await workoutsApi.getWorkouts('2024-01-01', '2024-01-31');
+
+      expect(workouts[0].workoutType).toBe('Bike');
+    });
+
+    it('should fall back to userTags when workoutType and workoutTypeValueId are both missing', async () => {
+      vi.mocked(mockHttpClient.request).mockResolvedValue([
+        {
+          workoutId: 1,
+          athleteId: 12345,
+          workoutDay: '2024-01-15',
           userTags: 'Custom Tag,Another',
         },
       ]);
@@ -54,13 +68,12 @@ describe('WorkoutsApi', () => {
       expect(workouts[0].workoutType).toBe('Custom Tag');
     });
 
-    it('should return Unknown when both workoutType and userTags are missing', async () => {
+    it('should return Unknown when all type fields are missing', async () => {
       vi.mocked(mockHttpClient.request).mockResolvedValue([
         {
           workoutId: 1,
           athleteId: 12345,
           workoutDay: '2024-01-15',
-          workoutTypeValueId: 7,
         },
       ]);
 
@@ -69,21 +82,20 @@ describe('WorkoutsApi', () => {
       expect(workouts[0].workoutType).toBe('Unknown');
     });
 
-    it('should not use numeric workoutTypeValueId as type string', async () => {
+    it('should fall back to userTags when workoutTypeValueId is unknown', async () => {
       vi.mocked(mockHttpClient.request).mockResolvedValue([
         {
           workoutId: 1,
           athleteId: 12345,
           workoutDay: '2024-01-15',
-          workoutTypeValueId: 7,
+          workoutTypeValueId: 999,
+          userTags: 'Custom Tag,Another',
         },
       ]);
 
       const workouts = await workoutsApi.getWorkouts('2024-01-01', '2024-01-31');
 
-      // Should NOT be "7" - that was the bug
-      expect(workouts[0].workoutType).not.toBe('7');
-      expect(workouts[0].workoutType).toBe('Unknown');
+      expect(workouts[0].workoutType).toBe('Custom Tag');
     });
 
     it('should handle Bike workout type correctly', async () => {
