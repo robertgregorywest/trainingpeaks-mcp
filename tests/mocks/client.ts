@@ -215,6 +215,13 @@ export function createMockClient() {
     getPeaks: vi.fn().mockResolvedValue(mockPeakData),
     getWorkoutPeaks: vi.fn().mockResolvedValue(mockWorkoutPeaks),
     getStrengthWorkouts: vi.fn().mockResolvedValue([mockStrengthWorkoutSummary]),
+    clearFileCache: vi.fn().mockResolvedValue({ count: 0, bytes: 0 }),
+    getFileCacheStats: vi.fn().mockResolvedValue({
+      entries: 0,
+      totalBytes: 0,
+      maxBytes: 500 * 1024 * 1024,
+      cacheDir: '/tmp/test-cache',
+    }),
     close: vi.fn().mockResolvedValue(undefined),
   };
 }

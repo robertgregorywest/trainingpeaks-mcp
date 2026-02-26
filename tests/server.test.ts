@@ -29,6 +29,7 @@ describe('MCP Server', () => {
         'compare_intervals',
         'get_strength_workouts',
         'parse_fit_file',
+        'clear_fit_cache',
         'get_fitness_data',
         'get_current_fitness',
         'get_peaks',

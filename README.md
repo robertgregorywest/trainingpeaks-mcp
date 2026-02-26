@@ -4,7 +4,8 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 
 ## Features
 
-- **17 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, aerobic decoupling, files, and date resolution
+- **18 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, aerobic decoupling, files, cache management, and date resolution
+- **FIT file caching**: Downloaded FIT files are cached to disk (`~/.trainingpeaks-mcp/cache/fit/`) — eliminates redundant downloads across sessions
 - **Dual transport**: stdio for Claude Desktop, HTTP for ChatGPT
 - **FIT file parsing**: Extract structured data from downloaded FIT files
 - Also usable as a standalone TypeScript library
@@ -124,6 +125,7 @@ Requires **Node.js 20+**.
 | `get_best_power` | Compute best power from raw FIT file for arbitrary durations (e.g., 3min, 8min, 45min) |
 | `get_power_duration_curve` | Build a power-duration curve across cycling workouts in a date range |
 | `get_aerobic_decoupling` | Calculate aerobic decoupling (Pw:Hr) from a workout — measures cardiac drift |
+| `clear_fit_cache` | Clear all cached FIT files downloaded from TrainingPeaks |
 | `get_current_date` | Get current date in ISO, US, EU, or custom format |
 
 ## Example Prompts

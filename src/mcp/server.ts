@@ -28,7 +28,7 @@ import {
   getStrengthWorkouts,
 } from './tools/workouts.js';
 
-import { parseFitFileSchema, parseFitFile } from './tools/files.js';
+import { parseFitFileSchema, parseFitFile, clearFitCacheSchema, clearFitCache } from './tools/files.js';
 
 import {
   getFitnessDataSchema,
@@ -146,6 +146,13 @@ export function createMcpServer(client: TrainingPeaksClient): McpServer {
     'Parse a FIT file and extract structured data (sessions, laps, records)',
     parseFitFileSchema.shape,
     (args) => parseFitFile(args)
+  );
+
+  tool(
+    'clear_fit_cache',
+    'Clear all cached FIT files downloaded from TrainingPeaks. Returns count and bytes freed.',
+    clearFitCacheSchema.shape,
+    () => clearFitCache(client)
   );
 
   // Fitness tools

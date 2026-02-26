@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { parseFitFile } from '../../src/mcp/tools/files.js';
+import { parseFitFile, clearFitCache } from '../../src/mcp/tools/files.js';
+import type { TrainingPeaksClient } from '../../src/index.js';
 
 // Mock fit-utils
 import * as fitUtils from '../../src/mcp/tools/fit-utils.js';
@@ -111,6 +112,25 @@ describe('file tools', () => {
       expect(parsed.sessions).toBeUndefined();
       expect(parsed.laps).toBeUndefined();
       expect(parsed.recordCount).toBeUndefined();
+    });
+  });
+
+  describe('clearFitCache', () => {
+    it('should clear cache and return result', async () => {
+      const mockClient = {
+        clearFileCache: vi.fn().mockResolvedValue({ count: 5, bytes: 1024 }),
+        getFileCacheStats: vi.fn().mockResolvedValue({
+          entries: 0,
+          totalBytes: 0,
+          maxBytes: 500 * 1024 * 1024,
+          cacheDir: '/home/user/.trainingpeaks-mcp/cache/fit',
+        }),
+      } as unknown as TrainingPeaksClient;
+
+      const result = JSON.parse(await clearFitCache(mockClient));
+      expect(result.cleared.files).toBe(5);
+      expect(result.cleared.bytes).toBe(1024);
+      expect(result.cacheDir).toBe('/home/user/.trainingpeaks-mcp/cache/fit');
     });
   });
 });

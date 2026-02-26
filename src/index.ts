@@ -5,6 +5,7 @@ import { WorkoutsApi, createWorkoutsApi } from './api/workouts.js';
 import { FilesApi, createFilesApi } from './api/files.js';
 import { FitnessApi, createFitnessApi } from './api/fitness.js';
 import { PeaksApi, createPeaksApi } from './api/peaks.js';
+import { FitFileCache } from './cache.js';
 import {
   buildPowerDurationCurve,
   type BuildPowerDurationCurveOptions,
@@ -36,6 +37,7 @@ export class TrainingPeaksClient {
   private filesApi: FilesApi;
   private fitnessApi: FitnessApi;
   private peaksApi: PeaksApi;
+  private fileCache: FitFileCache;
 
   constructor(options: ClientOptions = {}) {
     const username = options.username || process.env.TP_USERNAME;
@@ -55,7 +57,8 @@ export class TrainingPeaksClient {
     this.httpClient = createHttpClient(this.authManager);
     this.userApi = createUserApi(this.httpClient);
     this.workoutsApi = createWorkoutsApi(this.httpClient, this.userApi);
-    this.filesApi = createFilesApi(this.httpClient, this.userApi);
+    this.fileCache = new FitFileCache();
+    this.filesApi = createFilesApi(this.httpClient, this.userApi, this.fileCache);
     this.fitnessApi = createFitnessApi(this.httpClient, this.userApi);
     this.peaksApi = createPeaksApi(this.httpClient, this.userApi);
   }
@@ -157,6 +160,15 @@ export class TrainingPeaksClient {
       totalRecords: recordMesgs.length,
       ...decoupling,
     };
+  }
+
+  // Cache management
+  async clearFileCache(): Promise<{ count: number; bytes: number }> {
+    return this.fileCache.clear();
+  }
+
+  async getFileCacheStats() {
+    return this.fileCache.stats();
   }
 
   // Cleanup
