@@ -1,8 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getCurrentDate } from '../../src/mcp/tools/datetime.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { getCurrentDate } from "../../src/mcp/tools/datetime.js";
 
-// Fix time to 2026-02-15T14:30:45.000Z for deterministic tests
-const FIXED_NOW = new Date('2026-02-15T14:30:45.000Z');
+const FIXED_NOW = new Date("2026-02-15T14:30:45.000Z");
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -13,26 +12,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('get_current_date', () => {
-  it('returns ISO format by default', async () => {
-    const result = JSON.parse(await getCurrentDate({ format: 'iso' }));
+describe("datetime tool handler", () => {
+  it("returns JSON string with date from api/datetime", async () => {
+    const result = JSON.parse(await getCurrentDate({ format: "iso" }));
     expect(result.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-  });
-
-  it('returns US format', async () => {
-    const result = JSON.parse(await getCurrentDate({ format: 'us' }));
-    expect(result.date).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
-  });
-
-  it('returns EU format', async () => {
-    const result = JSON.parse(await getCurrentDate({ format: 'eu' }));
-    expect(result.date).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
-  });
-
-  it('returns custom format', async () => {
-    const result = JSON.parse(
-      await getCurrentDate({ format: 'custom', customFormat: 'DD-MM-YYYY' })
-    );
-    expect(result.date).toMatch(/^\d{2}-\d{2}-\d{4}$/);
   });
 });

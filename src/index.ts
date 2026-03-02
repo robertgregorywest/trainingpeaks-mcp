@@ -1,17 +1,24 @@
-import { AuthManager, createAuthManager } from './auth.js';
-import { HttpClient, createHttpClient, HttpError } from './client.js';
-import { UserApi, createUserApi } from './api/user.js';
-import { WorkoutsApi, createWorkoutsApi } from './api/workouts.js';
-import { FilesApi, createFilesApi } from './api/files.js';
-import { FitnessApi, createFitnessApi } from './api/fitness.js';
-import { PeaksApi, createPeaksApi } from './api/peaks.js';
-import { FitFileCache } from './cache.js';
+import { AuthManager, createAuthManager } from "./auth.js";
+import { HttpClient, createHttpClient, HttpError } from "./client.js";
+import { UserApi, createUserApi } from "./api/user.js";
+import { WorkoutsApi, createWorkoutsApi } from "./api/workouts.js";
+import { FilesApi, createFilesApi } from "./api/files.js";
+import { FitnessApi, createFitnessApi } from "./api/fitness.js";
+import { PeaksApi, createPeaksApi } from "./api/peaks.js";
+import { FitFileCache } from "./cache.js";
 import {
   buildPowerDurationCurve,
+  getBestPowerForWorkout,
   type BuildPowerDurationCurveOptions,
-} from './mcp/tools/power.js';
-import { computeAerobicDecoupling } from './mcp/tools/decoupling.js';
-import { decodeFitBuffer } from './mcp/tools/fit-utils.js';
+  type BestPowerResult,
+} from "./api/power.js";
+import { getAerobicDecouplingForWorkout } from "./api/decoupling.js";
+import {
+  compareIntervalsForWorkouts,
+  type CompareIntervalsOptions,
+  type CompareIntervalsResult,
+} from "./api/intervals.js";
+import { parseFitFile, type ParsedFitFile } from "./api/fit.js";
 import type {
   ClientOptions,
   User,
@@ -27,7 +34,7 @@ import type {
   GetPeaksOptions,
   PowerDurationCurveResult,
   AerobicDecouplingResult,
-} from './types.js';
+} from "./types.js";
 
 export class TrainingPeaksClient {
   private authManager: AuthManager;
@@ -45,20 +52,24 @@ export class TrainingPeaksClient {
 
     if (!username || !password) {
       throw new Error(
-        'TrainingPeaks credentials required. ' +
-          'Provide username/password in options or set TP_USERNAME/TP_PASSWORD env vars.'
+        "TrainingPeaks credentials required. " +
+          "Provide username/password in options or set TP_USERNAME/TP_PASSWORD env vars.",
       );
     }
 
     this.authManager = createAuthManager(
       { username, password },
-      options.headless ?? true
+      options.headless ?? true,
     );
     this.httpClient = createHttpClient(this.authManager);
     this.userApi = createUserApi(this.httpClient);
     this.workoutsApi = createWorkoutsApi(this.httpClient, this.userApi);
     this.fileCache = new FitFileCache();
-    this.filesApi = createFilesApi(this.httpClient, this.userApi, this.fileCache);
+    this.filesApi = createFilesApi(
+      this.httpClient,
+      this.userApi,
+      this.fileCache,
+    );
     this.fitnessApi = createFitnessApi(this.httpClient, this.userApi);
     this.peaksApi = createPeaksApi(this.httpClient, this.userApi);
   }
@@ -76,7 +87,7 @@ export class TrainingPeaksClient {
   async getWorkouts(
     startDate: string,
     endDate: string,
-    options?: GetWorkoutsOptions
+    options?: GetWorkoutsOptions,
   ): Promise<WorkoutSummary[]> {
     return this.workoutsApi.getWorkouts(startDate, endDate, options);
   }
@@ -91,9 +102,16 @@ export class TrainingPeaksClient {
 
   async getStrengthWorkouts(
     startDate: string,
-    endDate: string
+    endDate: string,
   ): Promise<StrengthWorkoutSummary[]> {
     return this.workoutsApi.getStrengthWorkouts(startDate, endDate);
+  }
+
+  async searchWorkouts(
+    title: string,
+    days?: number,
+  ): Promise<WorkoutSummary[]> {
+    return this.workoutsApi.searchWorkoutsByTitle(title, days);
   }
 
   // File methods
@@ -101,12 +119,22 @@ export class TrainingPeaksClient {
     return this.filesApi.downloadActivityFile(workoutId);
   }
 
-  async downloadAttachment(workoutId: number, attachmentId: number): Promise<Buffer> {
+  async downloadAttachment(
+    workoutId: number,
+    attachmentId: number,
+  ): Promise<Buffer> {
     return this.filesApi.downloadAttachment(workoutId, attachmentId);
   }
 
+  async parseFitFile(filePath: string): Promise<ParsedFitFile> {
+    return parseFitFile(filePath);
+  }
+
   // Fitness methods
-  async getFitnessData(startDate: string, endDate: string): Promise<FitnessMetrics[]> {
+  async getFitnessData(
+    startDate: string,
+    endDate: string,
+  ): Promise<FitnessMetrics[]> {
     return this.fitnessApi.getFitnessData(startDate, endDate);
   }
 
@@ -118,7 +146,7 @@ export class TrainingPeaksClient {
   async getPeaks(
     sport: PeakSport,
     type: PeakType,
-    options?: GetPeaksOptions
+    options?: GetPeaksOptions,
   ): Promise<PeakData[]> {
     return this.peaksApi.getPeaks(sport, type, options);
   }
@@ -128,38 +156,31 @@ export class TrainingPeaksClient {
   }
 
   // Power analysis
+  async getBestPower(
+    workoutId: number,
+    durations: number[],
+  ): Promise<BestPowerResult> {
+    return getBestPowerForWorkout(this, workoutId, durations);
+  }
+
   async getPowerDurationCurve(
-    options: BuildPowerDurationCurveOptions
+    options: BuildPowerDurationCurveOptions,
   ): Promise<PowerDurationCurveResult> {
     return buildPowerDurationCurve(this, options);
   }
 
   // Aerobic decoupling
-  async getAerobicDecoupling(workoutId: number): Promise<AerobicDecouplingResult> {
-    const workout = await this.getWorkout(workoutId);
-    const buffer = await this.downloadActivityFile(workoutId);
-    if (!buffer) {
-      throw new Error(`No activity file available for workout ${workoutId}`);
-    }
-    const messages = await decodeFitBuffer(buffer);
-    const recordMesgs = messages.recordMesgs;
-    if (!recordMesgs || recordMesgs.length === 0) {
-      throw new Error('No record data found in FIT file');
-    }
-    const powerStream: number[] = recordMesgs.map(
-      (r: Record<string, unknown>) => (typeof r.power === 'number' ? r.power : 0)
-    );
-    const hrStream: number[] = recordMesgs.map(
-      (r: Record<string, unknown>) => (typeof r.heartRate === 'number' ? r.heartRate : 0)
-    );
-    const decoupling = computeAerobicDecoupling(powerStream, hrStream);
-    return {
-      workoutId,
-      workoutDate: workout.workoutDay,
-      workoutTitle: workout.title,
-      totalRecords: recordMesgs.length,
-      ...decoupling,
-    };
+  async getAerobicDecoupling(
+    workoutId: number,
+  ): Promise<AerobicDecouplingResult> {
+    return getAerobicDecouplingForWorkout(this, workoutId);
+  }
+
+  // Interval comparison
+  async compareIntervals(
+    opts: CompareIntervalsOptions,
+  ): Promise<CompareIntervalsResult> {
+    return compareIntervalsForWorkouts(this, opts);
   }
 
   // Cache management
@@ -206,7 +227,7 @@ export type {
   PowerDurationCurveResult,
   AerobicDecouplingResult,
   AerobicDecouplingHalf,
-} from './types.js';
+} from "./types.js";
 
 // Export error class
 export { HttpError };

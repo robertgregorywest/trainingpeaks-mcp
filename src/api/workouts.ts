@@ -1,28 +1,28 @@
-import type { HttpClient } from '../client.js';
-import type { UserApi } from './user.js';
+import type { HttpClient } from "../client.js";
+import type { UserApi } from "./user.js";
 import type {
   WorkoutSummary,
   WorkoutDetail,
   GetWorkoutsOptions,
   StrengthWorkoutSummary,
-} from '../types.js';
+} from "../types.js";
 
-const PEAKSWARE_API_BASE = 'https://api.peakswaresb.com';
+const PEAKSWARE_API_BASE = "https://api.peakswaresb.com";
 
 const MAX_DATE_RANGE_DAYS = 90;
 
 /** Map workoutTypeValueId → sport name when the API omits the workoutType string. */
 const WORKOUT_TYPE_VALUE_MAP: Record<number, string> = {
-  1: 'Swim',
-  2: 'Bike',
-  3: 'Run',
-  4: 'Brick',
-  5: 'CrossTrain',
-  6: 'RestDay',
-  7: 'Strength',
-  8: 'Custom',
-  9: 'Walk',
-  10: 'Other',
+  1: "Swim",
+  2: "Bike",
+  3: "Run",
+  4: "Brick",
+  5: "CrossTrain",
+  6: "RestDay",
+  7: "Strength",
+  8: "Custom",
+  9: "Walk",
+  10: "Other",
 };
 
 export class WorkoutsApi {
@@ -37,10 +37,14 @@ export class WorkoutsApi {
   async getWorkouts(
     startDate: string,
     endDate: string,
-    options: GetWorkoutsOptions = {}
+    options: GetWorkoutsOptions = {},
   ): Promise<WorkoutSummary[]> {
     const athleteId = await this.userApi.getAthleteId();
-    const dateRanges = this.chunkDateRange(startDate, endDate, MAX_DATE_RANGE_DAYS);
+    const dateRanges = this.chunkDateRange(
+      startDate,
+      endDate,
+      MAX_DATE_RANGE_DAYS,
+    );
 
     const allWorkouts: WorkoutSummary[] = [];
 
@@ -49,7 +53,7 @@ export class WorkoutsApi {
         athleteId,
         range.start,
         range.end,
-        options
+        options,
       );
       allWorkouts.push(...workouts);
     }
@@ -61,7 +65,7 @@ export class WorkoutsApi {
     athleteId: number,
     startDate: string,
     endDate: string,
-    options: GetWorkoutsOptions
+    options: GetWorkoutsOptions,
   ): Promise<WorkoutSummary[]> {
     const endpoint = `/fitness/v6/athletes/${athleteId}/workouts/${startDate}/${endDate}`;
     const response = await this.client.request<WorkoutApiResponse[]>(endpoint);
@@ -88,27 +92,26 @@ export class WorkoutsApi {
 
   async getStrengthWorkouts(
     startDate: string,
-    endDate: string
+    endDate: string,
   ): Promise<StrengthWorkoutSummary[]> {
     const athleteId = await this.userApi.getAthleteId();
     const endpoint = `/rx/activity/v1/workouts/calendar/${athleteId}/${startDate}/${endDate}`;
-    const response = await this.client.requestWithBase<StrengthWorkoutApiResponse[]>(
-      PEAKSWARE_API_BASE,
-      endpoint
-    );
+    const response = await this.client.requestWithBase<
+      StrengthWorkoutApiResponse[]
+    >(PEAKSWARE_API_BASE, endpoint);
     return response.map((w) => this.mapStrengthWorkoutResponse(w, athleteId));
   }
 
   private mapStrengthWorkoutResponse(
     w: StrengthWorkoutApiResponse,
-    athleteId: number
+    athleteId: number,
   ): StrengthWorkoutSummary {
     return {
       workoutId: w.id,
       athleteId,
       title: w.title,
       workoutDay: w.prescribedDate,
-      workoutType: 'StructuredStrength',
+      workoutType: "StructuredStrength",
       completedDate: w.completedDateTime ?? undefined,
       totalTime: w.executedDurationInSeconds
         ? w.executedDurationInSeconds / 3600
@@ -144,7 +147,11 @@ export class WorkoutsApi {
       athleteId: w.athleteId,
       title: w.title,
       workoutDay: w.workoutDay,
-      workoutType: w.workoutType || WORKOUT_TYPE_VALUE_MAP[w.workoutTypeValueId ?? -1] || w.userTags?.split(',')[0] || 'Unknown',
+      workoutType:
+        w.workoutType ||
+        WORKOUT_TYPE_VALUE_MAP[w.workoutTypeValueId ?? -1] ||
+        w.userTags?.split(",")[0] ||
+        "Unknown",
       completedDate: w.startTime,
       description: w.description,
       totalTimePlanned: w.totalTimePlanned,
@@ -173,7 +180,11 @@ export class WorkoutsApi {
     const summary = this.mapWorkoutResponse(w);
 
     // Build metrics from the flat response structure
-    const hasMetrics = w.heartRateAverage || w.powerAverage || w.cadenceAverage || w.velocityAverage;
+    const hasMetrics =
+      w.heartRateAverage ||
+      w.powerAverage ||
+      w.cadenceAverage ||
+      w.velocityAverage;
 
     return {
       ...summary,
@@ -196,7 +207,7 @@ export class WorkoutsApi {
   private chunkDateRange(
     startDate: string,
     endDate: string,
-    maxDays: number
+    maxDays: number,
   ): Array<{ start: string; end: string }> {
     const ranges: Array<{ start: string; end: string }> = [];
     const start = new Date(startDate);
@@ -224,8 +235,23 @@ export class WorkoutsApi {
     return ranges;
   }
 
+  async searchWorkoutsByTitle(
+    title: string,
+    days: number = 90,
+  ): Promise<WorkoutSummary[]> {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const format = (d: Date) => d.toISOString().split("T")[0];
+    const workouts = await this.getWorkouts(format(startDate), format(endDate));
+
+    const query = title.toLowerCase();
+    return workouts.filter((w) => w.title?.toLowerCase().includes(query));
+  }
+
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   }
 }
 
@@ -311,6 +337,9 @@ interface StrengthWorkoutApiResponse {
   }>;
 }
 
-export function createWorkoutsApi(client: HttpClient, userApi: UserApi): WorkoutsApi {
+export function createWorkoutsApi(
+  client: HttpClient,
+  userApi: UserApi,
+): WorkoutsApi {
   return new WorkoutsApi(client, userApi);
 }

@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 import type {
   User,
   WorkoutSummary,
@@ -7,29 +7,29 @@ import type {
   FitnessMetrics,
   WorkoutPeaks,
   PeakData,
-} from '../../src/types.js';
+} from "../../src/types.js";
 
 // Sample test data
 export const mockUser: User = {
   id: 1,
   athleteId: 12345,
-  email: 'test@example.com',
-  firstName: 'Test',
-  lastName: 'User',
-  dateOfBirth: '1990-01-01',
-  gender: 'Male',
-  countryCode: 'US',
-  timezone: 'America/New_York',
+  email: "test@example.com",
+  firstName: "Test",
+  lastName: "User",
+  dateOfBirth: "1990-01-01",
+  gender: "Male",
+  countryCode: "US",
+  timezone: "America/New_York",
   isPremium: true,
 };
 
 export const mockWorkoutSummary: WorkoutSummary = {
   workoutId: 100,
   athleteId: 12345,
-  title: 'Morning Ride',
-  workoutDay: '2024-01-15',
-  workoutType: 'Bike',
-  completedDate: '2024-01-15',
+  title: "Morning Ride",
+  workoutDay: "2024-01-15",
+  workoutType: "Bike",
+  completedDate: "2024-01-15",
   totalTime: 3600,
   totalDistance: 40000,
   tssActual: 75,
@@ -39,10 +39,10 @@ export const mockWorkoutSummary: WorkoutSummary = {
 export const mockStrengthWorkout: WorkoutSummary = {
   workoutId: 101,
   athleteId: 12345,
-  title: 'Weight Training',
-  workoutDay: '2024-01-16',
-  workoutType: 'Strength',
-  completedDate: '2024-01-16',
+  title: "Weight Training",
+  workoutDay: "2024-01-16",
+  workoutType: "Strength",
+  completedDate: "2024-01-16",
   totalTime: 2700,
   tssActual: 40,
   hasFile: false,
@@ -63,7 +63,7 @@ export const mockWorkoutDetail: WorkoutDetail = {
   },
   intervals: [
     {
-      name: 'Warmup',
+      name: "Warmup",
       start: 0,
       end: 600,
       duration: 600,
@@ -86,7 +86,7 @@ export const mockWorkoutDetail: WorkoutDetail = {
 };
 
 export const mockFitnessMetrics: FitnessMetrics = {
-  date: '2024-01-15',
+  date: "2024-01-15",
   ctl: 65,
   atl: 80,
   tsb: -15,
@@ -95,13 +95,13 @@ export const mockFitnessMetrics: FitnessMetrics = {
 
 export const mockPeakData: PeakData[] = [
   {
-    type: 'Pr5Minutes',
+    type: "Pr5Minutes",
     value: 320,
     workoutId: 100,
-    workoutDate: '2024-01-15',
-    workoutTitle: 'Morning Ride',
+    workoutDate: "2024-01-15",
+    workoutTitle: "Morning Ride",
     rank: 0,
-    eventName: '',
+    eventName: "",
   },
 ];
 
@@ -110,13 +110,13 @@ export const mockWorkoutPeaks: WorkoutPeaks = {
   personalRecordCount: 1,
   personalRecords: [
     {
-      type: 'Pr5Minutes',
+      type: "Pr5Minutes",
       value: 320,
       workoutId: 100,
-      workoutDate: '2024-01-15',
-      workoutTitle: 'Morning Ride',
+      workoutDate: "2024-01-15",
+      workoutTitle: "Morning Ride",
       rank: 0,
-      eventName: '',
+      eventName: "",
     },
   ],
 };
@@ -124,10 +124,10 @@ export const mockWorkoutPeaks: WorkoutPeaks = {
 export const mockWorkoutSummary2: WorkoutSummary = {
   workoutId: 102,
   athleteId: 12345,
-  title: 'Evening Ride',
-  workoutDay: '2024-01-20',
-  workoutType: 'Bike',
-  completedDate: '2024-01-20',
+  title: "Evening Ride",
+  workoutDay: "2024-01-20",
+  workoutType: "Bike",
+  completedDate: "2024-01-20",
   totalTime: 5400,
   totalDistance: 60000,
   tssActual: 110,
@@ -137,10 +137,10 @@ export const mockWorkoutSummary2: WorkoutSummary = {
 export const mockWorkoutSummary3: WorkoutSummary = {
   workoutId: 103,
   athleteId: 12345,
-  title: 'Morning Run',
-  workoutDay: '2024-01-18',
-  workoutType: 'Run',
-  completedDate: '2024-01-18',
+  title: "Morning Run",
+  workoutDay: "2024-01-18",
+  workoutType: "Run",
+  completedDate: "2024-01-18",
   totalTime: 2400,
   totalDistance: 8000,
   tssActual: 50,
@@ -180,12 +180,12 @@ export const mockWorkoutDetailNoLaps: WorkoutDetail = {
 };
 
 export const mockStrengthWorkoutSummary: StrengthWorkoutSummary = {
-  workoutId: 'abc-123',
+  workoutId: "abc-123",
   athleteId: 12345,
-  title: 'Upper Body Strength',
-  workoutDay: '2024-01-17',
-  workoutType: 'StructuredStrength',
-  completedDate: '2024-01-17',
+  title: "Upper Body Strength",
+  workoutDay: "2024-01-17",
+  workoutType: "StructuredStrength",
+  completedDate: "2024-01-17",
   totalTime: 3600,
   totalBlocks: 4,
   completedBlocks: 4,
@@ -193,14 +193,14 @@ export const mockStrengthWorkoutSummary: StrengthWorkoutSummary = {
   completedSets: 10,
   compliancePercent: 83,
   exercises: [
-    { sequenceOrder: '1', title: 'Bench Press', compliancePercent: 100 },
-    { sequenceOrder: '2', title: 'Pull Ups', compliancePercent: 75 },
+    { sequenceOrder: "1", title: "Bench Press", compliancePercent: 100 },
+    { sequenceOrder: "2", title: "Pull Ups", compliancePercent: 75 },
   ],
   isLocked: false,
   isHidden: false,
 };
 
-export const mockFitBuffer = Buffer.from('mock FIT file content');
+export const mockFitBuffer = Buffer.from("mock FIT file content");
 
 export function createMockClient() {
   return {
@@ -214,15 +214,46 @@ export function createMockClient() {
     getCurrentFitness: vi.fn().mockResolvedValue(mockFitnessMetrics),
     getPeaks: vi.fn().mockResolvedValue(mockPeakData),
     getWorkoutPeaks: vi.fn().mockResolvedValue(mockWorkoutPeaks),
-    getStrengthWorkouts: vi.fn().mockResolvedValue([mockStrengthWorkoutSummary]),
+    getStrengthWorkouts: vi
+      .fn()
+      .mockResolvedValue([mockStrengthWorkoutSummary]),
     clearFileCache: vi.fn().mockResolvedValue({ count: 0, bytes: 0 }),
     getFileCacheStats: vi.fn().mockResolvedValue({
       entries: 0,
       totalBytes: 0,
       maxBytes: 500 * 1024 * 1024,
-      cacheDir: '/tmp/test-cache',
+      cacheDir: "/tmp/test-cache",
     }),
     close: vi.fn().mockResolvedValue(undefined),
+    // Facade methods
+    getBestPower: vi.fn().mockResolvedValue({
+      workoutId: 100,
+      workoutDate: "2024-01-15",
+      workoutTitle: "Morning Ride",
+      totalRecords: 60,
+      results: [],
+    }),
+    getPowerDurationCurve: vi.fn().mockResolvedValue({
+      startDate: "2024-01-01",
+      endDate: "2024-01-31",
+      workoutsAnalysed: 0,
+      workoutsSkipped: 0,
+      curve: [],
+      warnings: [],
+    }),
+    getAerobicDecoupling: vi.fn().mockResolvedValue({
+      workoutId: 100,
+      workoutDate: "2024-01-15",
+      workoutTitle: "Morning Ride",
+      totalRecords: 100,
+      firstHalf: { avgPower: 200, avgHR: 140, hrPowerRatio: 0.7 },
+      secondHalf: { avgPower: 200, avgHR: 140, hrPowerRatio: 0.7 },
+      decouplingPercent: 0,
+      interpretation: "Good aerobic fitness — minimal cardiac drift",
+    }),
+    searchWorkouts: vi.fn().mockResolvedValue([]),
+    compareIntervals: vi.fn().mockResolvedValue({ laps: [], summaries: [] }),
+    parseFitFile: vi.fn().mockResolvedValue({}),
   };
 }
 
