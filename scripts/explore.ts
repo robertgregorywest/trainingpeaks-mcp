@@ -61,14 +61,18 @@ try {
   // ============================================
   // PEAKS / PERSONAL RECORDS - Uncomment to explore
   // ============================================
-  const bikePeaks = await client.getAllPeaks("Bike");
-  dump("Cycling Peaks", bikePeaks);
+  const bikePeaks = await client.getPeaks("Bike", "power5min");
+  dump("Cycling Peaks (power5min)", bikePeaks);
   //
-  // const runPeaks = await client.getAllPeaks('Run');
-  // dump('Running Peaks', runPeaks);
+  // const runPeaks = await client.getPeaks('Run', 'speed5K');
+  // dump('Running Peaks (speed5K)', runPeaks);
   //
-  const powerPeaks = await client.getPowerPeaks();
-  dump("Power Peaks", powerPeaks);
+  const { start: curveStart, end: curveEnd } = lastNDays(90);
+  const powerCurve = await client.getPowerDurationCurve({
+    startDate: curveStart,
+    endDate: curveEnd,
+  });
+  dump("Power Duration Curve (90 days)", powerCurve);
 
   // ============================================
   // SAVE DATA FOR LATER - Uncomment to use
