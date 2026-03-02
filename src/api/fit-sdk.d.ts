@@ -1,4 +1,4 @@
-declare module '@garmin/fitsdk' {
+declare module "@garmin/fitsdk" {
   export class Stream {
     static fromBuffer(buffer: Buffer): Stream;
   }
