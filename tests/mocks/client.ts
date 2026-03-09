@@ -251,9 +251,25 @@ export function createMockClient() {
       decouplingPercent: 0,
       interpretation: "Good aerobic fitness — minimal cardiac drift",
     }),
+    downloadPlanFitFile: vi.fn().mockResolvedValue(null),
     searchWorkouts: vi.fn().mockResolvedValue([]),
     compareIntervals: vi.fn().mockResolvedValue({ laps: [], summaries: [] }),
     parseFitFile: vi.fn().mockResolvedValue({}),
+    assessCompliance: vi.fn().mockResolvedValue({
+      workoutId: 100,
+      title: "Morning Ride",
+      date: "2024-01-15",
+      planAvailable: false,
+      summary: {
+        tssPlanned: 75,
+        tssActual: 72,
+        durationPlanned: 3600,
+        durationActual: 3540,
+      },
+      steps: [],
+      overallCompliance: { stepsCompleted: 0, stepsPlanned: 0 },
+      warnings: ["No plan FIT file available — summary-only compliance"],
+    }),
   };
 }
 

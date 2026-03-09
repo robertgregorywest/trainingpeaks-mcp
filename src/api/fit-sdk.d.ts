@@ -13,6 +13,8 @@ declare module "@garmin/fitsdk" {
         sessionMesgs?: Record<string, unknown>[];
         lapMesgs?: Record<string, unknown>[];
         recordMesgs?: Record<string, unknown>[];
+        workoutMesgs?: Record<string, unknown>[];
+        workoutStepMesgs?: Record<string, unknown>[];
         [key: string]: unknown;
       };
       errors: unknown[];

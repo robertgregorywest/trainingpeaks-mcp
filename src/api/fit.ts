@@ -1,10 +1,13 @@
 import * as fs from "node:fs/promises";
+import type { PlanStep } from "../types.js";
 
 export interface FitMessages {
   fileIdMesgs?: Record<string, unknown>[];
   sessionMesgs?: Record<string, unknown>[];
   lapMesgs?: Record<string, unknown>[];
   recordMesgs?: Record<string, unknown>[];
+  workoutMesgs?: Record<string, unknown>[];
+  workoutStepMesgs?: Record<string, unknown>[];
   [key: string]: unknown;
 }
 
@@ -111,4 +114,173 @@ export async function parseFitFile(filePath: string): Promise<ParsedFitFile> {
   }
 
   return result;
+}
+
+// --- Plan FIT parsing ---
+
+const INTENSITY_MAP: Record<string, PlanStep["intensity"]> = {
+  active: "active",
+  rest: "rest",
+  warmup: "warmup",
+  cooldown: "cooldown",
+  recover: "recover",
+};
+
+const DURATION_TYPE_MAP: Record<string, PlanStep["durationType"]> = {
+  time: "time",
+  distance: "distance",
+  open: "open",
+};
+
+const TARGET_TYPE_MAP: Record<string, PlanStep["targetType"]> = {
+  power: "power",
+  heartRate: "heartRate",
+  heart_rate: "heartRate",
+  cadence: "cadence",
+  speed: "speed",
+  open: "open",
+};
+
+function normaliseEnum(val: unknown): string {
+  if (typeof val === "string") return val.toLowerCase().replace(/[_\s]/g, "");
+  if (typeof val === "number") return String(val);
+  return "";
+}
+
+function mapIntensity(val: unknown): PlanStep["intensity"] {
+  const key = normaliseEnum(val);
+  for (const [k, v] of Object.entries(INTENSITY_MAP)) {
+    if (key === k.toLowerCase()) return v;
+  }
+  return "unknown";
+}
+
+function mapDurationType(val: unknown): PlanStep["durationType"] {
+  const key = normaliseEnum(val);
+  for (const [k, v] of Object.entries(DURATION_TYPE_MAP)) {
+    if (key === k.toLowerCase()) return v;
+  }
+  return "unknown";
+}
+
+function mapTargetType(val: unknown): PlanStep["targetType"] {
+  const key = normaliseEnum(val);
+  for (const [k, v] of Object.entries(TARGET_TYPE_MAP)) {
+    if (key === k.toLowerCase()) return v;
+  }
+  return "unknown";
+}
+
+function numOrUndef(val: unknown): number | undefined {
+  return typeof val === "number" && isFinite(val) ? val : undefined;
+}
+
+export function parsePlanSteps(messages: FitMessages): PlanStep[] {
+  const stepMesgs = messages.workoutStepMesgs;
+  if (!stepMesgs || stepMesgs.length === 0) return [];
+
+  const rawSteps = stepMesgs.map((msg) => ({
+    messageIndex: typeof msg.messageIndex === "number" ? msg.messageIndex : 0,
+    wktStepName: msg.wktStepName as string | undefined,
+    intensity: msg.intensity,
+    durationType: msg.durationType,
+    durationValue: msg.durationValue,
+    durationTime: msg.durationTime,
+    durationDistance: msg.durationDistance,
+    targetType: msg.targetType,
+    targetValue: msg.targetValue,
+    customTargetValueLow: msg.customTargetValueLow,
+    customTargetValueHigh: msg.customTargetValueHigh,
+    customTargetLow: msg.customTargetLow,
+    customTargetHigh: msg.customTargetHigh,
+    repeatSteps: msg.repeatSteps,
+    repeatTimes: msg.repeatTimes,
+  }));
+
+  // Expand repeat steps into a flat list
+  const expanded: PlanStep[] = [];
+  let stepIndex = 0;
+  let i = 0;
+
+  while (i < rawSteps.length) {
+    const raw = rawSteps[i];
+
+    // Check if this is a repeat step
+    const repeatTimes = numOrUndef(raw.repeatTimes);
+    const repeatSteps = numOrUndef(raw.repeatSteps);
+
+    if (repeatTimes != null && repeatSteps != null && repeatSteps > 0) {
+      // This is a repeat marker — repeat the previous N steps
+      const stepsToRepeat = rawSteps.slice(i - repeatSteps, i);
+      // We already added the first iteration, so repeat (repeatTimes - 1) more
+      for (let r = 0; r < repeatTimes - 1; r++) {
+        for (const repStep of stepsToRepeat) {
+          expanded.push(buildPlanStep(repStep, stepIndex++));
+        }
+      }
+      i++;
+      continue;
+    }
+
+    expanded.push(buildPlanStep(raw, stepIndex++));
+    i++;
+  }
+
+  return expanded;
+}
+
+interface RawStepFields {
+  wktStepName?: string;
+  intensity: unknown;
+  durationType: unknown;
+  durationValue: unknown;
+  durationTime: unknown;
+  durationDistance: unknown;
+  targetType: unknown;
+  targetValue: unknown;
+  customTargetValueLow: unknown;
+  customTargetValueHigh: unknown;
+  customTargetLow: unknown;
+  customTargetHigh: unknown;
+  repeatSteps: unknown;
+  repeatTimes: unknown;
+}
+
+function buildPlanStep(raw: RawStepFields, stepIndex: number): PlanStep {
+  const durationType = mapDurationType(raw.durationType);
+  let durationValue: number | undefined;
+  if (durationType === "time") {
+    // FIT SDK stores time in seconds (sometimes ms/1000)
+    durationValue =
+      numOrUndef(raw.durationTime) ?? numOrUndef(raw.durationValue);
+  } else if (durationType === "distance") {
+    durationValue =
+      numOrUndef(raw.durationDistance) ?? numOrUndef(raw.durationValue);
+  }
+
+  let targetLow =
+    numOrUndef(raw.customTargetValueLow) ?? numOrUndef(raw.customTargetLow);
+  let targetHigh =
+    numOrUndef(raw.customTargetValueHigh) ?? numOrUndef(raw.customTargetHigh);
+  let targetValue = numOrUndef(raw.targetValue);
+
+  // FIT SDK encodes power targets with a +1000 offset (e.g. 1200 = 200W)
+  const targetType = mapTargetType(raw.targetType);
+  if (targetType === "power") {
+    if (targetLow != null && targetLow >= 1000) targetLow -= 1000;
+    if (targetHigh != null && targetHigh >= 1000) targetHigh -= 1000;
+    if (targetValue != null && targetValue >= 1000) targetValue -= 1000;
+  }
+
+  return {
+    stepIndex,
+    name: raw.wktStepName || undefined,
+    intensity: mapIntensity(raw.intensity),
+    durationType,
+    durationValue,
+    targetType,
+    targetLow,
+    targetHigh,
+    targetValue,
+  };
 }

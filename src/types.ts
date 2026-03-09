@@ -128,7 +128,7 @@ export interface StrengthWorkoutSummary {
   athleteId: number;
   title: string;
   workoutDay: string;
-  workoutType: 'StructuredStrength';
+  workoutType: "StructuredStrength";
   completedDate?: string;
   totalTime?: number;
   instructions?: string;
@@ -160,33 +160,33 @@ export interface FitnessMetrics {
 }
 
 // Peaks / Personal Records
-export type PeakSport = 'Bike' | 'Run';
+export type PeakSport = "Bike" | "Run";
 export type PeakType =
-  | 'power5sec'
-  | 'power1min'
-  | 'power5min'
-  | 'power10min'
-  | 'power20min'
-  | 'power60min'
-  | 'power90min'
-  | 'hR5sec'
-  | 'hR1min'
-  | 'hR5min'
-  | 'hR10min'
-  | 'hR20min'
-  | 'hR60min'
-  | 'hR90min'
-  | 'speed400Meter'
-  | 'speed800Meter'
-  | 'speed1K'
-  | 'speed1Mi'
-  | 'speed5K'
-  | 'speed5Mi'
-  | 'speed10K'
-  | 'speed10Mi'
-  | 'speedHalfMarathon'
-  | 'speedMarathon'
-  | 'speed50K';
+  | "power5sec"
+  | "power1min"
+  | "power5min"
+  | "power10min"
+  | "power20min"
+  | "power60min"
+  | "power90min"
+  | "hR5sec"
+  | "hR1min"
+  | "hR5min"
+  | "hR10min"
+  | "hR20min"
+  | "hR60min"
+  | "hR90min"
+  | "speed400Meter"
+  | "speed800Meter"
+  | "speed1K"
+  | "speed1Mi"
+  | "speed5K"
+  | "speed5Mi"
+  | "speed10K"
+  | "speed10Mi"
+  | "speedHalfMarathon"
+  | "speedMarathon"
+  | "speed50K";
 
 export interface PeakData {
   type: string;
@@ -241,6 +241,59 @@ export interface AerobicDecouplingResult {
   interpretation: string;
 }
 
+// Plan FIT / Compliance
+export interface PlanStep {
+  stepIndex: number;
+  name?: string;
+  intensity: "active" | "rest" | "warmup" | "cooldown" | "recover" | "unknown";
+  durationType: "time" | "distance" | "open" | "unknown";
+  durationValue?: number;
+  targetType: "power" | "heartRate" | "cadence" | "speed" | "open" | "unknown";
+  targetLow?: number;
+  targetHigh?: number;
+  targetValue?: number;
+}
+
+export interface ComplianceStep {
+  stepIndex: number;
+  intensity: string;
+  plannedDuration?: number;
+  actualDuration?: number;
+  targetType?: string;
+  targetLow?: number;
+  targetHigh?: number;
+  actualValue?: number;
+  compliancePercent?: number;
+  rating?: "under" | "on-target" | "over";
+}
+
+export interface ComplianceSummary {
+  tssPlanned?: number;
+  tssActual?: number;
+  ifPlanned?: number;
+  ifActual?: number;
+  durationPlanned?: number;
+  durationActual?: number;
+  distancePlanned?: number;
+  distanceActual?: number;
+}
+
+export interface ComplianceResult {
+  workoutId: number;
+  title?: string;
+  date: string;
+  planAvailable: boolean;
+  summary: ComplianceSummary;
+  steps: ComplianceStep[];
+  overallCompliance: {
+    stepsCompleted: number;
+    stepsPlanned: number;
+    powerComplianceAvg?: number;
+    durationComplianceAvg?: number;
+  };
+  warnings: string[];
+}
+
 // API Options
 export interface GetWorkoutsOptions {
   includeDeleted?: boolean;
@@ -265,7 +318,7 @@ export interface HttpClientConfig {
 }
 
 export interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   body?: unknown;
   headers?: Record<string, string>;
 }

@@ -19,6 +19,7 @@ import {
   type CompareIntervalsResult,
 } from "./api/intervals.js";
 import { parseFitFile, type ParsedFitFile } from "./api/fit.js";
+import { assessComplianceForWorkout } from "./api/compliance.js";
 import type {
   ClientOptions,
   User,
@@ -34,6 +35,7 @@ import type {
   GetPeaksOptions,
   PowerDurationCurveResult,
   AerobicDecouplingResult,
+  ComplianceResult,
 } from "./types.js";
 
 export class TrainingPeaksClient {
@@ -126,6 +128,10 @@ export class TrainingPeaksClient {
     return this.filesApi.downloadAttachment(workoutId, attachmentId);
   }
 
+  async downloadPlanFitFile(workoutId: number): Promise<Buffer | null> {
+    return this.filesApi.downloadPlanFitFile(workoutId);
+  }
+
   async parseFitFile(filePath: string): Promise<ParsedFitFile> {
     return parseFitFile(filePath);
   }
@@ -183,6 +189,11 @@ export class TrainingPeaksClient {
     return compareIntervalsForWorkouts(this, opts);
   }
 
+  // Compliance assessment
+  async assessCompliance(workoutId: number): Promise<ComplianceResult> {
+    return assessComplianceForWorkout(this, workoutId);
+  }
+
   // Cache management
   async clearFileCache(): Promise<{ count: number; bytes: number }> {
     return this.fileCache.clear();
@@ -227,6 +238,10 @@ export type {
   PowerDurationCurveResult,
   AerobicDecouplingResult,
   AerobicDecouplingHalf,
+  ComplianceResult,
+  ComplianceStep,
+  ComplianceSummary,
+  PlanStep,
 } from "./types.js";
 
 // Export error class

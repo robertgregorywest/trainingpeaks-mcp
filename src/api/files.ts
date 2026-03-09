@@ -1,7 +1,7 @@
-import { gunzipSync } from 'node:zlib';
-import type { HttpClient } from '../client.js';
-import type { UserApi } from './user.js';
-import type { FitFileCache } from '../cache.js';
+import { gunzipSync } from "node:zlib";
+import type { HttpClient } from "../client.js";
+import type { UserApi } from "./user.js";
+import type { FitFileCache } from "../cache.js";
 
 interface DeviceFileInfo {
   fileId: string;
@@ -32,7 +32,8 @@ export class FilesApi {
 
     const athleteId = await this.userApi.getAthleteId();
     const detailsEndpoint = `/fitness/v6/athletes/${athleteId}/workouts/${workoutId}/details`;
-    const details = await this.client.request<WorkoutDetailsResponse>(detailsEndpoint);
+    const details =
+      await this.client.request<WorkoutDetailsResponse>(detailsEndpoint);
 
     const fileInfo = details.workoutDeviceFileInfos?.[0];
     if (!fileInfo) {
@@ -42,7 +43,9 @@ export class FilesApi {
     const rawEndpoint = `/fitness/v6/athletes/${athleteId}/workouts/${workoutId}/rawfiledata/${fileInfo.fileId}`;
     const buffer = await this.client.requestRaw(rawEndpoint);
 
-    const result = fileInfo.fileName.endsWith('.gz') ? Buffer.from(gunzipSync(buffer)) : buffer;
+    const result = fileInfo.fileName.endsWith(".gz")
+      ? Buffer.from(gunzipSync(buffer))
+      : buffer;
 
     // Cache the decompressed result
     if (this.cache) {
@@ -52,13 +55,30 @@ export class FilesApi {
     return result;
   }
 
-  async downloadAttachment(workoutId: number, attachmentId: number): Promise<Buffer> {
+  async downloadPlanFitFile(workoutId: number): Promise<Buffer | null> {
+    const athleteId = await this.userApi.getAthleteId();
+    const endpoint = `/fitness/v6/athletes/${athleteId}/workouts/${workoutId}/fordevice/fit`;
+    try {
+      return await this.client.requestRaw(endpoint);
+    } catch {
+      return null;
+    }
+  }
+
+  async downloadAttachment(
+    workoutId: number,
+    attachmentId: number,
+  ): Promise<Buffer> {
     const athleteId = await this.userApi.getAthleteId();
     const endpoint = `/fitness/v6/athletes/${athleteId}/workouts/${workoutId}/attachments/${attachmentId}/raw`;
     return this.client.requestRaw(endpoint);
   }
 }
 
-export function createFilesApi(client: HttpClient, userApi: UserApi, cache?: FitFileCache): FilesApi {
+export function createFilesApi(
+  client: HttpClient,
+  userApi: UserApi,
+  cache?: FitFileCache,
+): FilesApi {
   return new FilesApi(client, userApi, cache);
 }

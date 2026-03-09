@@ -63,6 +63,11 @@ import {
   getAerobicDecoupling,
 } from "./tools/decoupling.js";
 
+import {
+  assessComplianceSchema,
+  assessCompliance,
+} from "./tools/compliance.js";
+
 type ToolResult = { content: Array<{ type: "text"; text: string }> };
 
 export function createMcpServer(client: TrainingPeaksClient): McpServer {
@@ -79,11 +84,11 @@ export function createMcpServer(client: TrainingPeaksClient): McpServer {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     handler: (args: any) => Promise<string>,
   ): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     server.tool(
       name,
       description,
       schema,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async (args: any): Promise<ToolResult> => {
         const start = Date.now();
         try {
@@ -222,6 +227,14 @@ export function createMcpServer(client: TrainingPeaksClient): McpServer {
     "Calculate aerobic decoupling (Pw:Hr) from a workout FIT file — measures cardiac drift between first and second halves",
     getAerobicDecouplingSchema.shape,
     (args) => getAerobicDecoupling(client, args),
+  );
+
+  // Compliance tools
+  tool(
+    "assess_compliance",
+    "Assess workout plan compliance — compares coach-prescribed plan (from plan FIT file) against actual recorded activity, with per-step and summary-level metrics",
+    assessComplianceSchema.shape,
+    (args) => assessCompliance(client, args),
   );
 
   // Datetime tools

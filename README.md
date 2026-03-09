@@ -4,7 +4,7 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 
 ## Features
 
-- **18 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, aerobic decoupling, files, cache management, and date resolution
+- **19 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, aerobic decoupling, workout plan compliance, files, cache management, and date resolution
 - **FIT file caching**: Downloaded FIT files are cached to disk (`~/.trainingpeaks-mcp/cache/fit/`) — eliminates redundant downloads across sessions
 - **Dual transport**: stdio for Claude Desktop, HTTP for ChatGPT
 - **FIT file parsing**: Extract structured data from downloaded FIT files
@@ -46,6 +46,7 @@ Restart Claude Desktop. You can now ask Claude about your training data!
 Requires **Node.js 20+**.
 
 1. Clone and install:
+
    ```bash
    git clone https://github.com/robertgregorywest/trainingpeaks-mcp.git
    cd trainingpeaks-mcp
@@ -53,26 +54,31 @@ Requires **Node.js 20+**.
    ```
 
 2. Create `.env` file with your credentials:
+
    ```bash
    cp .env.example .env
    # Edit .env with your TrainingPeaks credentials
    ```
 
 3. Build and start the HTTP server:
+
    ```bash
    npm run build
    npm run start:http
    ```
+
    You should see: `TrainingPeaks MCP HTTP server running on port 3000`
 
 4. Install ngrok (if not already installed):
 
    **macOS (Homebrew):**
+
    ```bash
    brew install ngrok
    ```
 
    **Windows (Chocolatey):**
+
    ```bash
    choco install ngrok
    ```
@@ -88,14 +94,17 @@ Requires **Node.js 20+**.
      ```
 
 6. Start ngrok to expose your local server (in a new terminal):
+
    ```bash
    ngrok http 3000
    ```
 
    ngrok will display output like:
+
    ```
    Forwarding   https://abc123.ngrok-free.app -> http://localhost:3000
    ```
+
    Copy the `https://...ngrok-free.app` URL.
 
 7. Add the MCP connector in ChatGPT:
@@ -107,26 +116,27 @@ Requires **Node.js 20+**.
 
 ## Available Tools
 
-| Tool | Description |
-|------|-------------|
-| `get_user` | Get user profile including athlete ID |
-| `get_athlete_id` | Get just the athlete ID |
-| `get_workouts` | List workouts in a date range |
-| `get_workout` | Get single workout summary |
-| `get_workout_details` | Get workout with full metrics, intervals, laps, zones |
-| `search_workouts` | Search workouts by title (case-insensitive) within a number of days |
-| `compare_intervals` | Compare laps/intervals side-by-side across workouts with power/duration filters |
-| `get_strength_workouts` | Get strength workouts in a date range (sets, blocks, exercises, compliance) |
-| `parse_fit_file` | Parse FIT file and extract structured data |
-| `get_fitness_data` | Get CTL/ATL/TSB for date range |
-| `get_current_fitness` | Get today's fitness metrics |
-| `get_peaks` | Get peaks for specific sport and type |
-| `get_workout_peaks` | Get PRs from specific workout |
-| `get_best_power` | Compute best power from raw FIT file for arbitrary durations (e.g., 3min, 8min, 45min) |
-| `get_power_duration_curve` | Build a power-duration curve across cycling workouts in a date range |
-| `get_aerobic_decoupling` | Calculate aerobic decoupling (Pw:Hr) from a workout — measures cardiac drift |
-| `clear_fit_cache` | Clear all cached FIT files downloaded from TrainingPeaks |
-| `get_current_date` | Get current date in ISO, US, EU, or custom format |
+| Tool                       | Description                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `get_user`                 | Get user profile including athlete ID                                                                               |
+| `get_athlete_id`           | Get just the athlete ID                                                                                             |
+| `get_workouts`             | List workouts in a date range                                                                                       |
+| `get_workout`              | Get single workout summary                                                                                          |
+| `get_workout_details`      | Get workout with full metrics, intervals, laps, zones                                                               |
+| `search_workouts`          | Search workouts by title (case-insensitive) within a number of days                                                 |
+| `compare_intervals`        | Compare laps/intervals side-by-side across workouts with power/duration filters                                     |
+| `get_strength_workouts`    | Get strength workouts in a date range (sets, blocks, exercises, compliance)                                         |
+| `parse_fit_file`           | Parse FIT file and extract structured data                                                                          |
+| `get_fitness_data`         | Get CTL/ATL/TSB for date range                                                                                      |
+| `get_current_fitness`      | Get today's fitness metrics                                                                                         |
+| `get_peaks`                | Get peaks for specific sport and type                                                                               |
+| `get_workout_peaks`        | Get PRs from specific workout                                                                                       |
+| `get_best_power`           | Compute best power from raw FIT file for arbitrary durations (e.g., 3min, 8min, 45min)                              |
+| `get_power_duration_curve` | Build a power-duration curve across cycling workouts in a date range                                                |
+| `get_aerobic_decoupling`   | Calculate aerobic decoupling (Pw:Hr) from a workout — measures cardiac drift                                        |
+| `assess_compliance`        | Assess workout plan compliance — compares prescribed plan against actual activity with per-step and summary metrics |
+| `clear_fit_cache`          | Clear all cached FIT files downloaded from TrainingPeaks                                                            |
+| `get_current_date`         | Get current date in ISO, US, EU, or custom format                                                                   |
 
 ## Example Prompts
 
@@ -140,6 +150,7 @@ Requires **Node.js 20+**.
 - "What's my best 3-minute and 8-minute power from yesterday's ride?"
 - "Build my power-duration curve for the last 6 weeks"
 - "What's the aerobic decoupling for my last long ride?"
+- "How well did I follow the plan for yesterday's ride?"
 - "What is today's date?"
 
 ## Environment Variables
@@ -157,24 +168,24 @@ TP_USERNAME=your-email@example.com
 TP_PASSWORD=your-password
 ```
 
-| Variable | Description | Optional |
-|----------|-------------|----------|
-| `TP_USERNAME` | TrainingPeaks email address | No |
-| `TP_PASSWORD` | TrainingPeaks password | No |
-| `PORT` | HTTP server port (default: 3000) | Yes |
-| `TP_TEST_BIKE_WORKOUT_ID` | Bike workout ID with FIT file, power, and HR data (for integration tests) | Yes |
+| Variable                  | Description                                                               | Optional |
+| ------------------------- | ------------------------------------------------------------------------- | -------- |
+| `TP_USERNAME`             | TrainingPeaks email address                                               | No       |
+| `TP_PASSWORD`             | TrainingPeaks password                                                    | No       |
+| `PORT`                    | HTTP server port (default: 3000)                                          | Yes      |
+| `TP_TEST_BIKE_WORKOUT_ID` | Bike workout ID with FIT file, power, and HR data (for integration tests) | Yes      |
 
 ## Library Usage
 
 You can also use this package as a standalone TypeScript library:
 
 ```typescript
-import { createClient } from 'trainingpeaks-mcp';
+import { createClient } from "trainingpeaks-mcp";
 
 const client = createClient();
 
 // Get workouts for a date range
-const workouts = await client.getWorkouts('2024-01-01', '2024-12-31');
+const workouts = await client.getWorkouts("2024-01-01", "2024-12-31");
 
 // Get workout details with metrics
 const details = await client.getWorkoutDetails(workouts[0].workoutId);
@@ -186,14 +197,22 @@ console.log(`CTL: ${fitness.ctl}, ATL: ${fitness.atl}, TSB: ${fitness.tsb}`);
 
 // Build a power-duration curve from the last 6 weeks of rides
 const curve = await client.getPowerDurationCurve({
-  startDate: '2024-11-01',
-  endDate: '2024-12-15',
+  startDate: "2024-11-01",
+  endDate: "2024-12-15",
 });
 console.log(curve.curve.map((p) => `${p.durationLabel}: ${p.bestPowerWatts}W`));
 
 // Aerobic decoupling analysis
 const decoupling = await client.getAerobicDecoupling(workouts[0].workoutId);
-console.log(`Decoupling: ${decoupling.decouplingPercent}% — ${decoupling.interpretation}`);
+console.log(
+  `Decoupling: ${decoupling.decouplingPercent}% — ${decoupling.interpretation}`,
+);
+
+// Workout plan compliance assessment
+const compliance = await client.assessCompliance(workouts[0].workoutId);
+console.log(
+  `Plan compliance: ${compliance.overallCompliance.powerComplianceAvg}%`,
+);
 
 // Clean up when done
 await client.close();
@@ -213,14 +232,17 @@ npm run typecheck    # Type-check without emitting
 Integration tests make real API calls to TrainingPeaks to verify all endpoints work correctly.
 
 **Prerequisites:**
+
 1. Create `.env` file with your TrainingPeaks credentials (see [Environment Variables](#environment-variables))
 
 **Run integration tests:**
+
 ```bash
 npm run test:integration
 ```
 
 **What's tested:**
+
 - User API: `getUser`, `getAthleteId`
 - Workouts API: `getWorkouts`, `getWorkout`, `getWorkoutDetails`
 - Fitness API: `getCurrentFitness`, `getFitnessData`

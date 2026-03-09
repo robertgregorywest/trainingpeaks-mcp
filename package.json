@@ -39,6 +39,7 @@
     "explore:strength": "tsx scripts/explore-strength.ts",
     "explore:peaks": "tsx scripts/explore-peaks.ts",
     "explore:power-curve": "tsx scripts/explore-power-curve.ts",
+    "explore:plan-fit": "tsx scripts/explore-plan-fit.ts",
     "mcpb:pack": "mcpb pack",
     "prepare": "husky"
   },
