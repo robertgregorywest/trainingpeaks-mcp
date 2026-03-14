@@ -187,6 +187,7 @@ export function parsePlanSteps(messages: FitMessages): PlanStep[] {
     durationValue: msg.durationValue,
     durationTime: msg.durationTime,
     durationDistance: msg.durationDistance,
+    durationStep: msg.durationStep,
     targetType: msg.targetType,
     targetValue: msg.targetValue,
     customTargetValueLow: msg.customTargetValueLow,
@@ -204,18 +205,47 @@ export function parsePlanSteps(messages: FitMessages): PlanStep[] {
 
   while (i < rawSteps.length) {
     const raw = rawSteps[i];
+    const durType = normaliseEnum(raw.durationType);
 
-    // Check if this is a repeat step
+    // Check if this is a repeat step.
+    // Two FIT repeat formats:
+    //   1. repeatTimes + repeatSteps (older/simple): repeat previous N steps M times total
+    //   2. repeatUntilStepsCmplt + durationStep + repeatSteps: go back to durationStep,
+    //      repeat that block for repeatSteps total iterations
     const repeatTimes = numOrUndef(raw.repeatTimes);
     const repeatSteps = numOrUndef(raw.repeatSteps);
+    const durationStep = numOrUndef(raw.durationStep);
 
     if (repeatTimes != null && repeatSteps != null && repeatSteps > 0) {
-      // This is a repeat marker — repeat the previous N steps
+      // Format 1: repeat the previous N steps
       const stepsToRepeat = rawSteps.slice(i - repeatSteps, i);
       // We already added the first iteration, so repeat (repeatTimes - 1) more
       for (let r = 0; r < repeatTimes - 1; r++) {
         for (const repStep of stepsToRepeat) {
           expanded.push(buildPlanStep(repStep, stepIndex++));
+        }
+      }
+      i++;
+      continue;
+    }
+
+    if (
+      durType === "repeatuntilstepscmplt" &&
+      durationStep != null &&
+      repeatSteps != null &&
+      repeatSteps > 0
+    ) {
+      // Format 2: repeat from durationStep (message index) through the step before this one
+      const startIdx = rawSteps.findIndex(
+        (s) => s.messageIndex === durationStep,
+      );
+      if (startIdx >= 0) {
+        const stepsToRepeat = rawSteps.slice(startIdx, i);
+        // First iteration already emitted, so repeat (repeatSteps - 1) more
+        for (let r = 0; r < repeatSteps - 1; r++) {
+          for (const repStep of stepsToRepeat) {
+            expanded.push(buildPlanStep(repStep, stepIndex++));
+          }
         }
       }
       i++;
@@ -236,6 +266,7 @@ interface RawStepFields {
   durationValue: unknown;
   durationTime: unknown;
   durationDistance: unknown;
+  durationStep: unknown;
   targetType: unknown;
   targetValue: unknown;
   customTargetValueLow: unknown;

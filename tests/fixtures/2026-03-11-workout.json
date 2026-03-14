@@ -1,0 +1,21 @@
+{
+  "workoutId": 3618753118,
+  "athleteId": 876397,
+  "title": "VO2max intervals",
+  "workoutDay": "2026-03-11T00:00:00",
+  "workoutType": "Bike",
+  "completedDate": "2026-03-11T06:22:54",
+  "description": null,
+  "totalTimePlanned": 0.8166666666666667,
+  "totalTime": 0.8311111330986023,
+  "totalDistance": 23078.9609375,
+  "tssPlanned": 67.3,
+  "tssActual": 57.37,
+  "ifPlanned": 0.91,
+  "ifActual": 0.8341197812089146,
+  "energyPlanned": 566.1600000000001,
+  "energy": 490.175,
+  "elevationGain": 85,
+  "elevationLoss": 95,
+  "hasFile": true
+}
