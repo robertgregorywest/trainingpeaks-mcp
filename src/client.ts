@@ -1,17 +1,30 @@
-import type { AuthManager } from './auth.js';
-import type { HttpClientConfig, RequestOptions } from './types.js';
+import type { AuthManager } from "./auth.js";
+import type { HttpClientConfig, RequestOptions } from "./types.js";
+
+export interface IHttpClient {
+  request<T>(endpoint: string, options?: RequestOptions): Promise<T>;
+  requestWithBase<T>(
+    baseUrl: string,
+    endpoint: string,
+    options?: RequestOptions,
+  ): Promise<T>;
+  requestRaw(endpoint: string, options?: RequestOptions): Promise<Buffer>;
+}
 
 const DEFAULT_CONFIG: HttpClientConfig = {
-  baseUrl: 'https://tpapi.trainingpeaks.com',
+  baseUrl: "https://tpapi.trainingpeaks.com",
   rateLimitMs: 150,
 };
 
-export class HttpClient {
+export class HttpClient implements IHttpClient {
   private config: HttpClientConfig;
   private authManager: AuthManager;
   private lastRequestTime = 0;
 
-  constructor(authManager: AuthManager, config: Partial<HttpClientConfig> = {}) {
+  constructor(
+    authManager: AuthManager,
+    config: Partial<HttpClientConfig> = {},
+  ) {
     this.authManager = authManager;
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
@@ -20,7 +33,11 @@ export class HttpClient {
     return this.requestWithBase<T>(this.config.baseUrl, endpoint, options);
   }
 
-  async requestWithBase<T>(baseUrl: string, endpoint: string, options: RequestOptions = {}): Promise<T> {
+  async requestWithBase<T>(
+    baseUrl: string,
+    endpoint: string,
+    options: RequestOptions = {},
+  ): Promise<T> {
     await this.enforceRateLimit();
 
     const token = await this.getValidToken();
@@ -28,13 +45,13 @@ export class HttpClient {
 
     const headers: Record<string, string> = {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
       ...options.headers,
     };
 
     const fetchOptions: RequestInit = {
-      method: options.method || 'GET',
+      method: options.method || "GET",
       headers,
     };
 
@@ -56,7 +73,10 @@ export class HttpClient {
       });
 
       if (!retryResponse.ok) {
-        throw new HttpError(retryResponse.status, await this.getErrorMessage(retryResponse));
+        throw new HttpError(
+          retryResponse.status,
+          await this.getErrorMessage(retryResponse),
+        );
       }
 
       return this.parseResponse<T>(retryResponse);
@@ -64,19 +84,28 @@ export class HttpClient {
 
     if (response.status === 429) {
       // Rate limited, wait and retry
-      const retryAfter = parseInt(response.headers.get('Retry-After') || '1', 10);
+      const retryAfter = parseInt(
+        response.headers.get("Retry-After") || "1",
+        10,
+      );
       await this.sleep(retryAfter * 1000);
       return this.requestWithBase<T>(baseUrl, endpoint, options);
     }
 
     if (!response.ok) {
-      throw new HttpError(response.status, await this.getErrorMessage(response));
+      throw new HttpError(
+        response.status,
+        await this.getErrorMessage(response),
+      );
     }
 
     return this.parseResponse<T>(response);
   }
 
-  async requestRaw(endpoint: string, options: RequestOptions = {}): Promise<Buffer> {
+  async requestRaw(
+    endpoint: string,
+    options: RequestOptions = {},
+  ): Promise<Buffer> {
     await this.enforceRateLimit();
 
     const token = await this.getValidToken();
@@ -88,7 +117,7 @@ export class HttpClient {
     };
 
     const response = await fetch(url, {
-      method: options.method || 'GET',
+      method: options.method || "GET",
       headers,
     });
 
@@ -99,12 +128,15 @@ export class HttpClient {
       headers.Authorization = `Bearer ${newToken}`;
 
       const retryResponse = await fetch(url, {
-        method: options.method || 'GET',
+        method: options.method || "GET",
         headers,
       });
 
       if (!retryResponse.ok) {
-        throw new HttpError(retryResponse.status, await this.getErrorMessage(retryResponse));
+        throw new HttpError(
+          retryResponse.status,
+          await this.getErrorMessage(retryResponse),
+        );
       }
 
       const arrayBuffer = await retryResponse.arrayBuffer();
@@ -112,7 +144,10 @@ export class HttpClient {
     }
 
     if (!response.ok) {
-      throw new HttpError(response.status, await this.getErrorMessage(response));
+      throw new HttpError(
+        response.status,
+        await this.getErrorMessage(response),
+      );
     }
 
     const arrayBuffer = await response.arrayBuffer();
@@ -135,8 +170,8 @@ export class HttpClient {
   }
 
   private async parseResponse<T>(response: Response): Promise<T> {
-    const contentType = response.headers.get('content-type');
-    if (contentType?.includes('application/json')) {
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("application/json")) {
       return response.json() as Promise<T>;
     }
     return response.text() as unknown as T;
@@ -144,7 +179,10 @@ export class HttpClient {
 
   private async getErrorMessage(response: Response): Promise<string> {
     try {
-      const data = (await response.json()) as { message?: string; error?: string };
+      const data = (await response.json()) as {
+        message?: string;
+        error?: string;
+      };
       return data.message || data.error || response.statusText;
     } catch {
       return response.statusText;
@@ -162,13 +200,13 @@ export class HttpError extends Error {
   constructor(status: number, message: string) {
     super(message);
     this.status = status;
-    this.name = 'HttpError';
+    this.name = "HttpError";
   }
 }
 
 export function createHttpClient(
   authManager: AuthManager,
-  config?: Partial<HttpClientConfig>
+  config?: Partial<HttpClientConfig>,
 ): HttpClient {
   return new HttpClient(authManager, config);
 }

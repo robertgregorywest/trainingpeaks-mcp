@@ -1,6 +1,6 @@
 import { createRequire } from "node:module";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { TrainingPeaksClient } from "../index.js";
+import type { ITrainingPeaksClient } from "../index.js";
 import { logResponse, logError } from "./logger.js";
 
 const require = createRequire(import.meta.url);
@@ -70,7 +70,7 @@ import {
 
 type ToolResult = { content: Array<{ type: "text"; text: string }> };
 
-export function createMcpServer(client: TrainingPeaksClient): McpServer {
+export function createMcpServer(client: ITrainingPeaksClient): McpServer {
   const server = new McpServer({
     name: "trainingpeaks-mcp",
     version,

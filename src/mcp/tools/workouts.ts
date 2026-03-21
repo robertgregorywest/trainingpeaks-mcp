@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { TrainingPeaksClient } from "../../index.js";
+import type { ITrainingPeaksClient } from "../../index.js";
 
 export const getStrengthWorkoutsSchema = z.object({
   startDate: z.string().describe("Start date in YYYY-MM-DD format"),
@@ -7,7 +7,7 @@ export const getStrengthWorkoutsSchema = z.object({
 });
 
 export async function getStrengthWorkouts(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof getStrengthWorkoutsSchema>,
 ): Promise<string> {
   const workouts = await client.getStrengthWorkouts(
@@ -32,7 +32,7 @@ export const getWorkoutDetailsSchema = z.object({
 });
 
 export async function getWorkouts(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof getWorkoutsSchema>,
 ): Promise<string> {
   const workouts = await client.getWorkouts(args.startDate, args.endDate, {
@@ -42,7 +42,7 @@ export async function getWorkouts(
 }
 
 export async function getWorkout(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof getWorkoutSchema>,
 ): Promise<string> {
   const workout = await client.getWorkout(args.workoutId);
@@ -50,7 +50,7 @@ export async function getWorkout(
 }
 
 export async function getWorkoutDetails(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof getWorkoutDetailsSchema>,
 ): Promise<string> {
   const workout = await client.getWorkoutDetails(args.workoutId);
@@ -71,7 +71,7 @@ export const searchWorkoutsSchema = z.object({
 });
 
 export async function searchWorkouts(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof searchWorkoutsSchema>,
 ): Promise<string> {
   const matches = await client.searchWorkouts(args.title, args.days);
@@ -98,7 +98,7 @@ export const compareIntervalsSchema = z.object({
 });
 
 export async function compareIntervals(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof compareIntervalsSchema>,
 ): Promise<string> {
   const result = await client.compareIntervals(args);

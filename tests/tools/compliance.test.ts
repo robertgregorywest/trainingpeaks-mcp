@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { assessCompliance } from "../../src/mcp/tools/compliance.js";
 import { createMockClient, type MockClient } from "../mocks/client.js";
-import type { TrainingPeaksClient } from "../../src/index.js";
+import type { ITrainingPeaksClient } from "../../src/index.js";
 
 describe("compliance tool handler", () => {
   let mockClient: MockClient;
@@ -12,7 +12,7 @@ describe("compliance tool handler", () => {
 
   it("should return JSON string from client.assessCompliance", async () => {
     const result = await assessCompliance(
-      mockClient as unknown as TrainingPeaksClient,
+      mockClient as unknown as ITrainingPeaksClient,
       { workoutId: 100 },
     );
     const parsed = JSON.parse(result);

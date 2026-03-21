@@ -1,5 +1,11 @@
-import type { HttpClient } from "../../client.js";
+import type { IHttpClient } from "../../client.js";
 import type { User } from "../../types.js";
+
+export interface IUserApi {
+  getUser(): Promise<User>;
+  getAthleteId(): Promise<number>;
+  clearCache(): void;
+}
 
 interface UserApiResponse {
   user: {
@@ -22,12 +28,12 @@ interface UserApiResponse {
   };
 }
 
-export class UserApi {
-  private client: HttpClient;
+export class UserApi implements IUserApi {
+  private client: IHttpClient;
   private cachedUser: User | null = null;
   private fetchPromise: Promise<User> | null = null;
 
-  constructor(client: HttpClient) {
+  constructor(client: IHttpClient) {
     this.client = client;
   }
 
@@ -87,6 +93,6 @@ export class UserApi {
   }
 }
 
-export function createUserApi(client: HttpClient): UserApi {
+export function createUserApi(client: IHttpClient): UserApi {
   return new UserApi(client);
 }

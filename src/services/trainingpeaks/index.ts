@@ -1,5 +1,9 @@
-export { UserApi, createUserApi } from "./user.js";
-export { WorkoutsApi, createWorkoutsApi } from "./workouts.js";
-export { FilesApi, createFilesApi } from "./files.js";
-export { FitnessApi, createFitnessApi } from "./fitness.js";
-export { PeaksApi, createPeaksApi } from "./peaks.js";
+export { UserApi, createUserApi, type IUserApi } from "./user.js";
+export {
+  WorkoutsApi,
+  createWorkoutsApi,
+  type IWorkoutsApi,
+} from "./workouts.js";
+export { FilesApi, createFilesApi, type IFilesApi } from "./files.js";
+export { FitnessApi, createFitnessApi, type IFitnessApi } from "./fitness.js";
+export { PeaksApi, createPeaksApi, type IPeaksApi } from "./peaks.js";

@@ -14,7 +14,7 @@ import {
   mockStrengthWorkoutSummary,
   type MockClient,
 } from "../mocks/client.js";
-import type { TrainingPeaksClient } from "../../src/index.js";
+import type { ITrainingPeaksClient } from "../../src/index.js";
 
 describe("workout tool handlers", () => {
   let mockClient: MockClient;
@@ -26,7 +26,7 @@ describe("workout tool handlers", () => {
   describe("getWorkouts", () => {
     it("should return workouts as JSON", async () => {
       const result = await getWorkouts(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",
@@ -48,7 +48,7 @@ describe("workout tool handlers", () => {
   describe("getWorkout", () => {
     it("should return single workout as JSON", async () => {
       const result = await getWorkout(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
         {
           workoutId: 100,
         },
@@ -63,7 +63,7 @@ describe("workout tool handlers", () => {
   describe("getWorkoutDetails", () => {
     it("should return workout details as JSON", async () => {
       const result = await getWorkoutDetails(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
         {
           workoutId: 100,
         },
@@ -78,7 +78,7 @@ describe("workout tool handlers", () => {
   describe("getStrengthWorkouts", () => {
     it("should return strength workouts as JSON", async () => {
       const result = await getStrengthWorkouts(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",
@@ -99,7 +99,7 @@ describe("workout tool handlers", () => {
       mockClient.searchWorkouts.mockResolvedValue([mockWorkoutSummary]);
 
       const result = await searchWorkouts(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
         {
           title: "ride",
           days: 90,
@@ -119,7 +119,7 @@ describe("workout tool handlers", () => {
 
       const args = { workoutIds: [100, 102], durationTolerance: 2 };
       const result = await compareIntervals(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
         args,
       );
       const parsed = JSON.parse(result);

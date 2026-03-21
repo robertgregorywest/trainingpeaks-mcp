@@ -1,11 +1,29 @@
-import type { HttpClient } from "../../client.js";
-import type { UserApi } from "./user.js";
+import type { IHttpClient } from "../../client.js";
+import type { IUserApi } from "./user.js";
 import type {
   WorkoutSummary,
   WorkoutDetail,
   GetWorkoutsOptions,
   StrengthWorkoutSummary,
 } from "../../types.js";
+
+export interface IWorkoutsApi {
+  getWorkouts(
+    startDate: string,
+    endDate: string,
+    options?: GetWorkoutsOptions,
+  ): Promise<WorkoutSummary[]>;
+  getWorkout(workoutId: number): Promise<WorkoutSummary>;
+  getWorkoutDetails(workoutId: number): Promise<WorkoutDetail>;
+  getStrengthWorkouts(
+    startDate: string,
+    endDate: string,
+  ): Promise<StrengthWorkoutSummary[]>;
+  searchWorkoutsByTitle(
+    title: string,
+    days?: number,
+  ): Promise<WorkoutSummary[]>;
+}
 
 const PEAKSWARE_API_BASE = "https://api.peakswaresb.com";
 
@@ -25,11 +43,11 @@ const WORKOUT_TYPE_VALUE_MAP: Record<number, string> = {
   10: "Other",
 };
 
-export class WorkoutsApi {
-  private client: HttpClient;
-  private userApi: UserApi;
+export class WorkoutsApi implements IWorkoutsApi {
+  private client: IHttpClient;
+  private userApi: IUserApi;
 
-  constructor(client: HttpClient, userApi: UserApi) {
+  constructor(client: IHttpClient, userApi: IUserApi) {
     this.client = client;
     this.userApi = userApi;
   }
@@ -338,8 +356,8 @@ interface StrengthWorkoutApiResponse {
 }
 
 export function createWorkoutsApi(
-  client: HttpClient,
-  userApi: UserApi,
+  client: IHttpClient,
+  userApi: IUserApi,
 ): WorkoutsApi {
   return new WorkoutsApi(client, userApi);
 }

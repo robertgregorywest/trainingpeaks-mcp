@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { TrainingPeaksClient } from "../../index.js";
+import type { ITrainingPeaksClient } from "../../index.js";
 
 export const getBestPowerSchema = z.object({
   workoutId: z.number().describe("The workout ID"),
@@ -9,7 +9,7 @@ export const getBestPowerSchema = z.object({
 });
 
 export async function getBestPower(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof getBestPowerSchema>,
 ): Promise<string> {
   const result = await client.getBestPower(args.workoutId, args.durations);
@@ -35,7 +35,7 @@ export const getPowerDurationCurveSchema = z.object({
 });
 
 export async function getPowerDurationCurve(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof getPowerDurationCurveSchema>,
 ): Promise<string> {
   const result = await client.getPowerDurationCurve(args);

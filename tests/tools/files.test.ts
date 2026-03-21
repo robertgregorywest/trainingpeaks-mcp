@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { parseFitFile, clearFitCache } from "../../src/mcp/tools/files.js";
-import type { TrainingPeaksClient } from "../../src/index.js";
+import type { ITrainingPeaksClient } from "../../src/index.js";
 
 describe("file tool handlers", () => {
   describe("parseFitFile", () => {
@@ -8,7 +8,7 @@ describe("file tool handlers", () => {
       const mockResult = { fileId: { type: "activity" }, recordCount: 10 };
       const mockClient = {
         parseFitFile: vi.fn().mockResolvedValue(mockResult),
-      } as unknown as TrainingPeaksClient;
+      } as unknown as ITrainingPeaksClient;
 
       const result = JSON.parse(
         await parseFitFile(mockClient, { filePath: "/tmp/test.fit" }),
@@ -27,7 +27,7 @@ describe("file tool handlers", () => {
           maxBytes: 500 * 1024 * 1024,
           cacheDir: "/home/user/.trainingpeaks-mcp/cache/fit",
         }),
-      } as unknown as TrainingPeaksClient;
+      } as unknown as ITrainingPeaksClient;
 
       const result = JSON.parse(await clearFitCache(mockClient));
       expect(result.cleared.files).toBe(5);

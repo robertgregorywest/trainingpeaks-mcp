@@ -1,12 +1,12 @@
 import { z } from "zod";
-import type { TrainingPeaksClient } from "../../index.js";
+import type { ITrainingPeaksClient } from "../../index.js";
 
 export const getAerobicDecouplingSchema = z.object({
   workoutId: z.number().describe("The workout ID"),
 });
 
 export async function getAerobicDecoupling(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof getAerobicDecouplingSchema>,
 ): Promise<string> {
   const result = await client.getAerobicDecoupling(args.workoutId);

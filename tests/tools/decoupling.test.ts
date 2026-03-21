@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { getAerobicDecoupling } from "../../src/mcp/tools/decoupling.js";
 import { createMockClient, type MockClient } from "../mocks/client.js";
-import type { TrainingPeaksClient } from "../../src/index.js";
+import type { ITrainingPeaksClient } from "../../src/index.js";
 
 describe("decoupling tool handler", () => {
   let mockClient: MockClient;
@@ -12,7 +12,7 @@ describe("decoupling tool handler", () => {
 
   it("should return JSON string from client.getAerobicDecoupling", async () => {
     const result = await getAerobicDecoupling(
-      mockClient as unknown as TrainingPeaksClient,
+      mockClient as unknown as ITrainingPeaksClient,
       {
         workoutId: 100,
       },

@@ -4,7 +4,7 @@ import {
   getPowerDurationCurve,
 } from "../../src/mcp/tools/power.js";
 import { createMockClient, type MockClient } from "../mocks/client.js";
-import type { TrainingPeaksClient } from "../../src/index.js";
+import type { ITrainingPeaksClient } from "../../src/index.js";
 
 describe("power tool handlers", () => {
   let mockClient: MockClient;
@@ -16,7 +16,7 @@ describe("power tool handlers", () => {
   describe("getBestPower", () => {
     it("should return JSON string from client.getBestPower", async () => {
       const result = await getBestPower(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
         {
           workoutId: 100,
           durations: [10, 30],
@@ -37,7 +37,7 @@ describe("power tool handlers", () => {
         durations: [5, 10],
       };
       const result = await getPowerDurationCurve(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
         args,
       );
       const parsed = JSON.parse(result);

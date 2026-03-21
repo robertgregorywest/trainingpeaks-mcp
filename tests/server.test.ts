@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { createMcpServer } from "../src/mcp/server.js";
 import { createMockClient, mockUser, type MockClient } from "./mocks/client.js";
-import type { TrainingPeaksClient } from "../src/index.js";
+import type { ITrainingPeaksClient } from "../src/index.js";
 
 describe("MCP Server", () => {
   let mockClient: MockClient;
@@ -13,14 +13,14 @@ describe("MCP Server", () => {
   describe("createMcpServer", () => {
     it("should create server with correct name and version", () => {
       const server = createMcpServer(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
       );
       expect(server).toBeDefined();
     });
 
     it("should register all expected tools", async () => {
       const server = createMcpServer(
-        mockClient as unknown as TrainingPeaksClient,
+        mockClient as unknown as ITrainingPeaksClient,
       );
 
       const expectedTools = [

@@ -1,6 +1,11 @@
-import type { HttpClient } from "../../client.js";
-import type { UserApi } from "./user.js";
+import type { IHttpClient } from "../../client.js";
+import type { IUserApi } from "./user.js";
 import type { FitnessMetrics } from "../../types.js";
+
+export interface IFitnessApi {
+  getFitnessData(startDate: string, endDate: string): Promise<FitnessMetrics[]>;
+  getCurrentFitness(): Promise<FitnessMetrics>;
+}
 
 interface FitnessDataItem {
   workoutDay: string;
@@ -15,11 +20,11 @@ interface FitnessDataItem {
 
 type FitnessDataResponse = FitnessDataItem[] | { data: FitnessDataItem[] };
 
-export class FitnessApi {
-  private client: HttpClient;
-  private userApi: UserApi;
+export class FitnessApi implements IFitnessApi {
+  private client: IHttpClient;
+  private userApi: IUserApi;
 
-  constructor(client: HttpClient, userApi: UserApi) {
+  constructor(client: IHttpClient, userApi: IUserApi) {
     this.client = client;
     this.userApi = userApi;
   }
@@ -87,8 +92,8 @@ export class FitnessApi {
 }
 
 export function createFitnessApi(
-  client: HttpClient,
-  userApi: UserApi,
+  client: IHttpClient,
+  userApi: IUserApi,
 ): FitnessApi {
   return new FitnessApi(client, userApi);
 }

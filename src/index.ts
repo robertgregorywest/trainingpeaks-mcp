@@ -1,18 +1,22 @@
 import { AuthManager, createAuthManager } from "./auth.js";
-import { HttpClient, createHttpClient, HttpError } from "./client.js";
+import { createHttpClient, HttpError } from "./client.js";
+import type { IHttpClient } from "./client.js";
 import {
-  UserApi,
   createUserApi,
-  WorkoutsApi,
   createWorkoutsApi,
-  FilesApi,
   createFilesApi,
-  FitnessApi,
   createFitnessApi,
-  PeaksApi,
   createPeaksApi,
 } from "./services/trainingpeaks/index.js";
+import type {
+  IUserApi,
+  IWorkoutsApi,
+  IFilesApi,
+  IFitnessApi,
+  IPeaksApi,
+} from "./services/trainingpeaks/index.js";
 import { FitFileCache } from "./cache.js";
+import type { CacheStats } from "./cache.js";
 import {
   parseFitFile,
   type ParsedFitFile,
@@ -47,14 +51,79 @@ import type {
   CompareIntervalsResult,
 } from "./types.js";
 
-export class TrainingPeaksClient implements IWorkoutDataProvider {
+export interface ITrainingPeaksClient extends IWorkoutDataProvider {
+  // User
+  getUser(): Promise<User>;
+  getAthleteId(): Promise<number>;
+
+  // Workouts
+  getWorkouts(
+    startDate: string,
+    endDate: string,
+    options?: GetWorkoutsOptions,
+  ): Promise<WorkoutSummary[]>;
+  getWorkout(workoutId: number): Promise<WorkoutSummary>;
+  getWorkoutDetails(workoutId: number): Promise<WorkoutDetail>;
+  getStrengthWorkouts(
+    startDate: string,
+    endDate: string,
+  ): Promise<StrengthWorkoutSummary[]>;
+  searchWorkouts(title: string, days?: number): Promise<WorkoutSummary[]>;
+
+  // Files
+  downloadActivityFile(workoutId: number): Promise<Buffer | null>;
+  downloadAttachment(workoutId: number, attachmentId: number): Promise<Buffer>;
+  downloadPlanFitFile(workoutId: number): Promise<Buffer | null>;
+  parseFitFile(filePath: string): Promise<ParsedFitFile>;
+
+  // Fitness
+  getFitnessData(startDate: string, endDate: string): Promise<FitnessMetrics[]>;
+  getCurrentFitness(): Promise<FitnessMetrics>;
+
+  // Peaks
+  getPeaks(
+    sport: PeakSport,
+    type: PeakType,
+    options?: GetPeaksOptions,
+  ): Promise<PeakData[]>;
+  getWorkoutPeaks(workoutId: number): Promise<WorkoutPeaks>;
+
+  // Power analysis
+  getBestPower(
+    workoutId: number,
+    durations: number[],
+  ): Promise<BestPowerResult>;
+  getPowerDurationCurve(
+    options: BuildPowerDurationCurveOptions,
+  ): Promise<PowerDurationCurveResult>;
+
+  // Aerobic decoupling
+  getAerobicDecoupling(workoutId: number): Promise<AerobicDecouplingResult>;
+
+  // Intervals
+  compareIntervals(
+    opts: CompareIntervalsOptions,
+  ): Promise<CompareIntervalsResult>;
+
+  // Compliance
+  assessCompliance(workoutId: number): Promise<ComplianceResult>;
+
+  // Cache
+  clearFileCache(): Promise<{ count: number; bytes: number }>;
+  getFileCacheStats(): Promise<CacheStats>;
+
+  // Cleanup
+  close(): Promise<void>;
+}
+
+export class TrainingPeaksClient implements ITrainingPeaksClient {
   private authManager: AuthManager;
-  private httpClient: HttpClient;
-  private userApi: UserApi;
-  private workoutsApi: WorkoutsApi;
-  private filesApi: FilesApi;
-  private fitnessApi: FitnessApi;
-  private peaksApi: PeaksApi;
+  private httpClient: IHttpClient;
+  private userApi: IUserApi;
+  private workoutsApi: IWorkoutsApi;
+  private filesApi: IFilesApi;
+  private fitnessApi: IFitnessApi;
+  private peaksApi: IPeaksApi;
   private fileCache: FitFileCache;
 
   constructor(options: ClientOptions = {}) {
@@ -259,6 +328,14 @@ export type {
 
 // Export service interfaces and types
 export type { IWorkoutDataProvider } from "./services/workout-analysis/index.js";
+export type { IHttpClient } from "./client.js";
+export type {
+  IUserApi,
+  IWorkoutsApi,
+  IFilesApi,
+  IFitnessApi,
+  IPeaksApi,
+} from "./services/trainingpeaks/index.js";
 
 // Export error class
 export { HttpError };

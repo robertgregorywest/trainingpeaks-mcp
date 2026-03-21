@@ -1,7 +1,13 @@
 import { gunzipSync } from "node:zlib";
-import type { HttpClient } from "../../client.js";
-import type { UserApi } from "./user.js";
+import type { IHttpClient } from "../../client.js";
+import type { IUserApi } from "./user.js";
 import type { FitFileCache } from "../../cache.js";
+
+export interface IFilesApi {
+  downloadActivityFile(workoutId: number): Promise<Buffer | null>;
+  downloadPlanFitFile(workoutId: number): Promise<Buffer | null>;
+  downloadAttachment(workoutId: number, attachmentId: number): Promise<Buffer>;
+}
 
 interface DeviceFileInfo {
   fileId: string;
@@ -12,12 +18,12 @@ interface WorkoutDetailsResponse {
   workoutDeviceFileInfos?: DeviceFileInfo[];
 }
 
-export class FilesApi {
-  private client: HttpClient;
-  private userApi: UserApi;
+export class FilesApi implements IFilesApi {
+  private client: IHttpClient;
+  private userApi: IUserApi;
   private cache?: FitFileCache;
 
-  constructor(client: HttpClient, userApi: UserApi, cache?: FitFileCache) {
+  constructor(client: IHttpClient, userApi: IUserApi, cache?: FitFileCache) {
     this.client = client;
     this.userApi = userApi;
     this.cache = cache;
@@ -76,8 +82,8 @@ export class FilesApi {
 }
 
 export function createFilesApi(
-  client: HttpClient,
-  userApi: UserApi,
+  client: IHttpClient,
+  userApi: IUserApi,
   cache?: FitFileCache,
 ): FilesApi {
   return new FilesApi(client, userApi, cache);

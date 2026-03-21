@@ -1,5 +1,5 @@
-import type { HttpClient } from "../../client.js";
-import type { UserApi } from "./user.js";
+import type { IHttpClient } from "../../client.js";
+import type { IUserApi } from "./user.js";
 import type {
   PeakSport,
   PeakType,
@@ -7,6 +7,15 @@ import type {
   WorkoutPeaks,
   GetPeaksOptions,
 } from "../../types.js";
+
+export interface IPeaksApi {
+  getPeaks(
+    sport: PeakSport,
+    type: PeakType,
+    options?: GetPeaksOptions,
+  ): Promise<PeakData[]>;
+  getWorkoutPeaks(workoutId: number): Promise<WorkoutPeaks>;
+}
 
 interface PeaksApiRecord {
   id: number;
@@ -43,11 +52,11 @@ function mapRecord(r: PeaksApiRecord): PeakData {
   };
 }
 
-export class PeaksApi {
-  private client: HttpClient;
-  private userApi: UserApi;
+export class PeaksApi implements IPeaksApi {
+  private client: IHttpClient;
+  private userApi: IUserApi;
 
-  constructor(client: HttpClient, userApi: UserApi) {
+  constructor(client: IHttpClient, userApi: IUserApi) {
     this.client = client;
     this.userApi = userApi;
   }
@@ -89,6 +98,9 @@ export class PeaksApi {
   }
 }
 
-export function createPeaksApi(client: HttpClient, userApi: UserApi): PeaksApi {
+export function createPeaksApi(
+  client: IHttpClient,
+  userApi: IUserApi,
+): PeaksApi {
   return new PeaksApi(client, userApi);
 }

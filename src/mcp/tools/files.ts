@@ -1,12 +1,12 @@
 import { z } from "zod";
-import type { TrainingPeaksClient } from "../../index.js";
+import type { ITrainingPeaksClient } from "../../index.js";
 
 export const parseFitFileSchema = z.object({
   filePath: z.string().describe("Path to the FIT file to parse"),
 });
 
 export async function parseFitFile(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
   args: z.infer<typeof parseFitFileSchema>,
 ): Promise<string> {
   const result = await client.parseFitFile(args.filePath);
@@ -16,7 +16,7 @@ export async function parseFitFile(
 export const clearFitCacheSchema = z.object({});
 
 export async function clearFitCache(
-  client: TrainingPeaksClient,
+  client: ITrainingPeaksClient,
 ): Promise<string> {
   const { count, bytes } = await client.clearFileCache();
   const stats = await client.getFileCacheStats();

@@ -8,6 +8,7 @@ import type {
   WorkoutPeaks,
   PeakData,
 } from "../../src/types.js";
+import type { ITrainingPeaksClient } from "../../src/index.js";
 import type { IWorkoutDataProvider } from "../../src/services/workout-analysis/types.js";
 
 // Sample test data
@@ -203,7 +204,9 @@ export const mockStrengthWorkoutSummary: StrengthWorkoutSummary = {
 
 export const mockFitBuffer = Buffer.from("mock FIT file content");
 
-export function createMockClient() {
+export function createMockClient(): {
+  [K in keyof ITrainingPeaksClient]: ReturnType<typeof vi.fn>;
+} {
   return {
     getUser: vi.fn().mockResolvedValue(mockUser),
     getAthleteId: vi.fn().mockResolvedValue(12345),
@@ -211,6 +214,7 @@ export function createMockClient() {
     getWorkout: vi.fn().mockResolvedValue(mockWorkoutSummary),
     getWorkoutDetails: vi.fn().mockResolvedValue(mockWorkoutDetail),
     downloadActivityFile: vi.fn().mockResolvedValue(mockFitBuffer),
+    downloadAttachment: vi.fn().mockResolvedValue(mockFitBuffer),
     getFitnessData: vi.fn().mockResolvedValue([mockFitnessMetrics]),
     getCurrentFitness: vi.fn().mockResolvedValue(mockFitnessMetrics),
     getPeaks: vi.fn().mockResolvedValue(mockPeakData),
