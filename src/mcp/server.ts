@@ -68,6 +68,8 @@ import {
   assessCompliance,
 } from "./tools/compliance.js";
 
+import { buildZwoSchema, buildZwoWorkout } from "./tools/zwo.js";
+
 type ToolResult = { content: Array<{ type: "text"; text: string }> };
 
 export function createMcpServer(client: ITrainingPeaksClient): McpServer {
@@ -243,6 +245,14 @@ export function createMcpServer(client: ITrainingPeaksClient): McpServer {
     "Get the current date in various formats (ISO, US, EU, custom)",
     getCurrentDateSchema.shape,
     (args) => getCurrentDate(args),
+  );
+
+  // ZWO workout builder
+  tool(
+    "build_zwo_workout",
+    "Build a Zwift .zwo workout file from structured segments. Segment types: warmup (ramp up), cooldown (ramp down), steady (constant power), intervals (repeated on/off work/rest), ramp (linear power change), freeride (no power target). Power can be specified as absolute watts via { watts: 250 } (requires ftp parameter for conversion) or as FTP percentage via { ftpPercent: 75 }. Returns XML string and suggested filename.",
+    buildZwoSchema.shape,
+    (args) => buildZwoWorkout(args),
   );
 
   return server;

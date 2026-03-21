@@ -43,6 +43,7 @@ describe("MCP Server", () => {
         "get_aerobic_decoupling",
         "assess_compliance",
         "get_current_date",
+        "build_zwo_workout",
       ];
 
       // Access registered tools via the internal _registeredTools object

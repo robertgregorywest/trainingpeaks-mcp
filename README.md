@@ -4,7 +4,7 @@ An MCP (Model Context Protocol) server for accessing your TrainingPeaks training
 
 ## Features
 
-- **19 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, aerobic decoupling, workout plan compliance, files, cache management, and date resolution
+- **20 tools** for accessing workouts, strength workouts, fitness metrics, peaks/PRs, power analysis, aerobic decoupling, workout plan compliance, ZWO workout generation, files, cache management, and date resolution
 - **FIT file caching**: Downloaded FIT files are cached to disk (`~/.trainingpeaks-mcp/cache/fit/`) — eliminates redundant downloads across sessions
 - **Dual transport**: stdio for Claude Desktop, HTTP for ChatGPT
 - **FIT file parsing**: Extract structured data from downloaded FIT files
@@ -135,6 +135,7 @@ Requires **Node.js 20+**.
 | `get_power_duration_curve` | Build a power-duration curve across cycling workouts in a date range                                                |
 | `get_aerobic_decoupling`   | Calculate aerobic decoupling (Pw:Hr) from a workout — measures cardiac drift                                        |
 | `assess_compliance`        | Assess workout plan compliance — compares prescribed plan against actual activity with per-step and summary metrics |
+| `build_zwo_workout`        | Build a Zwift .zwo workout file from structured segments (warmup, intervals, steady, ramp, cooldown, freeride)      |
 | `clear_fit_cache`          | Clear all cached FIT files downloaded from TrainingPeaks                                                            |
 | `get_current_date`         | Get current date in ISO, US, EU, or custom format                                                                   |
 
@@ -151,6 +152,8 @@ Requires **Node.js 20+**.
 - "Build my power-duration curve for the last 6 weeks"
 - "What's the aerobic decoupling for my last long ride?"
 - "How well did I follow the plan for yesterday's ride?"
+- "Create a 5x5 VO2max workout at 300W with 50% FTP recovery for Zwift"
+- "Build me a sweet spot session with 3x10min at 220W"
 - "What is today's date?"
 
 ## Environment Variables
