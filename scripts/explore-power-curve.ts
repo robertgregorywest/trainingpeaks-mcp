@@ -7,7 +7,7 @@
  */
 import "dotenv/config";
 import { TrainingPeaksClient } from "../src/index.js";
-import { buildPowerDurationCurve, formatDuration } from "../src/api/power.js";
+import { formatDuration } from "../src/services/fit-analysis/index.js";
 import { dump, lastNDays } from "./helpers.js";
 
 const client = new TrainingPeaksClient();
@@ -21,7 +21,7 @@ try {
   console.log(
     `=== Power Duration Curve (last 90 days: ${start90} → ${end90}) ===`,
   );
-  const curve90 = await buildPowerDurationCurve(client, {
+  const curve90 = await client.getPowerDurationCurve({
     startDate: start90,
     endDate: end90,
   });
@@ -45,7 +45,7 @@ try {
   console.log(
     `\n=== Power Duration Curve (last 30 days: ${start30} → ${end30}, custom durations) ===`,
   );
-  const curve30 = await buildPowerDurationCurve(client, {
+  const curve30 = await client.getPowerDurationCurve({
     startDate: start30,
     endDate: end30,
     durations: [5, 15, 30, 60, 300, 600, 1200, 1800, 3600],

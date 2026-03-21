@@ -1,5 +1,5 @@
 import * as fs from "node:fs/promises";
-import type { PlanStep } from "../types.js";
+import type { PlanStep } from "../../types.js";
 
 export interface FitMessages {
   fileIdMesgs?: Record<string, unknown>[];

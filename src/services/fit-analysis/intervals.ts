@@ -1,6 +1,5 @@
-import type { TrainingPeaksClient } from "../index.js";
-import type { WorkoutDetail, WorkoutLap } from "../types.js";
-import { decodeFitBuffer } from "./fit.js";
+import type { WorkoutDetail, WorkoutLap } from "../../types.js";
+import { decodeFitBuffer } from "./decoder.js";
 
 export interface LapValue {
   workoutId: number;
@@ -30,17 +29,10 @@ export interface WorkoutSummaryResult {
   totalDuration: number;
 }
 
-export interface CompareIntervalsOptions {
-  workoutIds: number[];
+export interface FilterLapsOptions {
   minPower?: number;
   targetDuration?: number;
   durationTolerance: number;
-}
-
-export interface CompareIntervalsResult {
-  laps: LapRow[];
-  summaries: WorkoutSummaryResult[];
-  warnings?: string[];
 }
 
 export async function parseLapsFromFit(buffer: Buffer): Promise<WorkoutLap[]> {
@@ -70,10 +62,7 @@ export async function parseLapsFromFit(buffer: Buffer): Promise<WorkoutLap[]> {
 
 export function filterLaps(
   laps: WorkoutLap[],
-  opts: Pick<
-    CompareIntervalsOptions,
-    "minPower" | "targetDuration" | "durationTolerance"
-  >,
+  opts: FilterLapsOptions,
 ): WorkoutLap[] {
   let filtered = laps;
 
@@ -134,70 +123,4 @@ export function buildSummary(
     avgCadence,
     totalDuration,
   };
-}
-
-export async function compareIntervalsForWorkouts(
-  client: TrainingPeaksClient,
-  opts: CompareIntervalsOptions,
-): Promise<CompareIntervalsResult> {
-  const fetches = await Promise.all(
-    opts.workoutIds.map(async (id) => {
-      const [detail, fitBuffer] = await Promise.all([
-        client.getWorkoutDetails(id),
-        client.downloadActivityFile(id).catch(() => null),
-      ]);
-      return { detail, fitBuffer };
-    }),
-  );
-
-  const warnings: string[] = [];
-
-  const workoutLaps: { detail: WorkoutDetail; laps: WorkoutLap[] }[] =
-    await Promise.all(
-      fetches.map(async ({ detail, fitBuffer }) => {
-        let laps: WorkoutLap[];
-        if (fitBuffer) {
-          laps = await parseLapsFromFit(fitBuffer);
-          if (laps.length === 0) {
-            warnings.push(
-              `Workout ${detail.workoutId} (${detail.title ?? "Untitled"}): FIT file contains no laps`,
-            );
-          }
-        } else {
-          laps = [];
-          warnings.push(
-            `Workout ${detail.workoutId} (${detail.title ?? "Untitled"}): no FIT file available`,
-          );
-        }
-        return { detail, laps: filterLaps(laps, opts) };
-      }),
-    );
-
-  const maxLaps = Math.max(...workoutLaps.map((w) => w.laps.length), 0);
-  const laps: LapRow[] = [];
-
-  for (let i = 0; i < maxLaps; i++) {
-    const values: LapValue[] = workoutLaps.map((w) => {
-      const lap = w.laps[i];
-      return {
-        workoutId: w.detail.workoutId,
-        title: w.detail.title,
-        date: w.detail.completedDate ?? w.detail.workoutDay,
-        avgPower: lap?.averagePower,
-        maxPower: lap?.maxPower,
-        avgCadence: lap?.averageCadence,
-        duration: lap?.duration,
-      };
-    });
-    laps.push({ lapNumber: i + 1, values });
-  }
-
-  const summaries = workoutLaps.map((w) => buildSummary(w.detail, w.laps));
-
-  const result: CompareIntervalsResult = { laps, summaries };
-  if (warnings.length > 0) {
-    result.warnings = warnings;
-  }
-
-  return result;
 }

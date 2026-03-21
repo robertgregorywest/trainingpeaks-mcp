@@ -14,7 +14,10 @@ import "dotenv/config";
 import { TrainingPeaksClient } from "../src/index.js";
 import { createAuthManager } from "../src/auth.js";
 import { createHttpClient } from "../src/client.js";
-import { decodeFitBuffer, parsePlanSteps } from "../src/api/fit.js";
+import {
+  decodeFitBuffer,
+  parsePlanSteps,
+} from "../src/services/fit-analysis/index.js";
 import { dump, shape, lastNDays } from "./helpers.js";
 
 const client = new TrainingPeaksClient();

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { computeStepCompliance } from "../../src/api/compliance.js";
-import { parsePlanSteps } from "../../src/api/fit.js";
-import type { PlanStep } from "../../src/types.js";
+import { computeStepCompliance } from "../../../src/services/fit-analysis/compliance.js";
+import { parsePlanSteps } from "../../../src/services/fit-analysis/decoder.js";
+import type { PlanStep } from "../../../src/types.js";
 
 describe("parsePlanSteps", () => {
   it("should return empty array for missing workout step messages", () => {

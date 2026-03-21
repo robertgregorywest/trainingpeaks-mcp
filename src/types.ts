@@ -231,10 +231,10 @@ export interface AerobicDecouplingHalf {
 }
 
 export interface AerobicDecouplingResult {
-  workoutId: number;
-  workoutDate: string;
+  workoutId?: number;
+  workoutDate?: string;
   workoutTitle?: string;
-  totalRecords: number;
+  totalRecords?: number;
   firstHalf: AerobicDecouplingHalf;
   secondHalf: AerobicDecouplingHalf;
   decouplingPercent: number;
@@ -292,6 +292,63 @@ export interface ComplianceResult {
     durationComplianceAvg?: number;
   };
   warnings: string[];
+}
+
+// Power Duration Curve Options
+export interface BuildPowerDurationCurveOptions {
+  startDate: string;
+  endDate: string;
+  durations?: number[];
+  exclude_workout_ids?: number[];
+}
+
+export interface BestPowerResult {
+  workoutId: number;
+  workoutDate: string;
+  workoutTitle?: string;
+  totalRecords: number;
+  results: Array<{
+    durationSeconds: number;
+    bestPowerWatts: number | null;
+    startOffsetSeconds?: number;
+    error?: string;
+  }>;
+}
+
+// Interval Comparison
+export interface CompareIntervalsOptions {
+  workoutIds: number[];
+  minPower?: number;
+  targetDuration?: number;
+  durationTolerance: number;
+}
+
+export interface CompareIntervalsResult {
+  laps: Array<{
+    lapNumber: number;
+    values: Array<{
+      workoutId: number;
+      title?: string;
+      date?: string;
+      avgPower?: number;
+      maxPower?: number;
+      avgCadence?: number;
+      duration?: number;
+    }>;
+  }>;
+  summaries: Array<{
+    workoutId: number;
+    title?: string;
+    date?: string;
+    lapCount: number;
+    avgPower: number | null;
+    minPower: number | null;
+    maxPower: number | null;
+    powerRange: number | null;
+    avgCadence: number | null;
+    totalDuration: number;
+  }>;
+  warnings?: string[];
 }
 
 // API Options

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getCurrentDate as getCurrentDateApi } from "../../api/datetime.js";
+import { getCurrentDate as getCurrentDateApi } from "../../services/datetime.js";
 
 export const getCurrentDateSchema = z.object({
   format: z

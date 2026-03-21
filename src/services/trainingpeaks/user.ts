@@ -1,5 +1,5 @@
-import type { HttpClient } from '../client.js';
-import type { User } from '../types.js';
+import type { HttpClient } from "../../client.js";
+import type { User } from "../../types.js";
 
 interface UserApiResponse {
   user: {
@@ -47,11 +47,15 @@ export class UserApi {
   }
 
   private async fetchUser(): Promise<User> {
-    const response = await this.client.request<UserApiResponse>('/users/v3/user');
+    const response =
+      await this.client.request<UserApiResponse>("/users/v3/user");
 
     if (!response || !response.user) {
-      console.error('Unexpected API response:', JSON.stringify(response, null, 2));
-      throw new Error('Invalid response from user API');
+      console.error(
+        "Unexpected API response:",
+        JSON.stringify(response, null, 2),
+      );
+      throw new Error("Invalid response from user API");
     }
 
     const athletes = response.user.athletes || [];

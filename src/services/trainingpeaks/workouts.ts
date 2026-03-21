@@ -1,11 +1,11 @@
-import type { HttpClient } from "../client.js";
+import type { HttpClient } from "../../client.js";
 import type { UserApi } from "./user.js";
 import type {
   WorkoutSummary,
   WorkoutDetail,
   GetWorkoutsOptions,
   StrengthWorkoutSummary,
-} from "../types.js";
+} from "../../types.js";
 
 const PEAKSWARE_API_BASE = "https://api.peakswaresb.com";
 

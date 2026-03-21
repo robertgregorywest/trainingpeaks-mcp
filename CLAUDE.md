@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+## Architecture
+
+- Orchestration code (`workout-analysis/`) depends on `IWorkoutDataProvider`, never on `TrainingPeaksClient` directly.
+
 ## Release Process
 
 Use `/release` to create a new release.

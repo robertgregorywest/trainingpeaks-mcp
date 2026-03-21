@@ -1,10 +1,8 @@
-import type { TrainingPeaksClient } from "../index.js";
-import type { AerobicDecouplingResult } from "../types.js";
-import { decodeFitBuffer, extractPowerStream, extractHrStream } from "./fit.js";
+import type { AerobicDecouplingHalf } from "../../types.js";
 
 export interface ComputeDecouplingResult {
-  firstHalf: { avgPower: number; avgHR: number; hrPowerRatio: number };
-  secondHalf: { avgPower: number; avgHR: number; hrPowerRatio: number };
+  firstHalf: AerobicDecouplingHalf;
+  secondHalf: AerobicDecouplingHalf;
   decouplingPercent: number;
   interpretation: string;
 }
@@ -77,31 +75,5 @@ export function computeAerobicDecoupling(
     },
     decouplingPercent: roundedDecoupling,
     interpretation,
-  };
-}
-
-export async function getAerobicDecouplingForWorkout(
-  client: TrainingPeaksClient,
-  workoutId: number,
-): Promise<AerobicDecouplingResult> {
-  const workout = await client.getWorkout(workoutId);
-  const buffer = await client.downloadActivityFile(workoutId);
-  if (!buffer) {
-    throw new Error(`No activity file available for workout ${workoutId}`);
-  }
-  const messages = await decodeFitBuffer(buffer);
-  const recordMesgs = messages.recordMesgs;
-  if (!recordMesgs || recordMesgs.length === 0) {
-    throw new Error("No record data found in FIT file");
-  }
-  const powerStream = extractPowerStream(recordMesgs);
-  const hrStream = extractHrStream(recordMesgs);
-  const decoupling = computeAerobicDecoupling(powerStream, hrStream);
-  return {
-    workoutId,
-    workoutDate: workout.workoutDay,
-    workoutTitle: workout.title,
-    totalRecords: recordMesgs.length,
-    ...decoupling,
   };
 }

@@ -1,12 +1,12 @@
-import type { HttpClient } from '../client.js';
-import type { UserApi } from './user.js';
+import type { HttpClient } from "../../client.js";
+import type { UserApi } from "./user.js";
 import type {
   PeakSport,
   PeakType,
   PeakData,
   WorkoutPeaks,
   GetPeaksOptions,
-} from '../types.js';
+} from "../../types.js";
 
 interface PeaksApiRecord {
   id: number;
@@ -55,18 +55,18 @@ export class PeaksApi {
   async getPeaks(
     sport: PeakSport,
     type: PeakType,
-    options: GetPeaksOptions = {}
+    options: GetPeaksOptions = {},
   ): Promise<PeakData[]> {
     const athleteId = await this.userApi.getAthleteId();
 
     const params = new URLSearchParams();
-    params.set('prType', type);
+    params.set("prType", type);
 
     if (options.startDate) {
-      params.set('startDate', `${options.startDate}T00:00:00`);
+      params.set("startDate", `${options.startDate}T00:00:00`);
     }
     if (options.endDate) {
-      params.set('endDate', `${options.endDate}T00:00:00`);
+      params.set("endDate", `${options.endDate}T00:00:00`);
     }
 
     const endpoint = `/personalrecord/v2/athletes/${athleteId}/${sport}?${params.toString()}`;
@@ -78,7 +78,8 @@ export class PeaksApi {
   async getWorkoutPeaks(workoutId: number): Promise<WorkoutPeaks> {
     const athleteId = await this.userApi.getAthleteId();
     const endpoint = `/personalrecord/v2/athletes/${athleteId}/workouts/${workoutId}?displayPeaksForBasic=true`;
-    const response = await this.client.request<WorkoutPeaksApiResponse>(endpoint);
+    const response =
+      await this.client.request<WorkoutPeaksApiResponse>(endpoint);
 
     return {
       workoutId: response.workoutId,

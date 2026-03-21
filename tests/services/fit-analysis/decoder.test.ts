@@ -6,7 +6,7 @@ import {
   extractPowerStream,
   extractHrStream,
   parseFitFile,
-} from "../../src/api/fit.js";
+} from "../../../src/services/fit-analysis/decoder.js";
 
 // Mock the Garmin FIT SDK used by decodeFitBuffer
 const mockRead = vi.fn();
@@ -24,7 +24,7 @@ vi.mock("@garmin/fitsdk", () => ({
   },
 }));
 
-describe("api/fit", () => {
+describe("services/fit-analysis/decoder", () => {
   describe("extractPowerStream", () => {
     it("should extract power values from record messages", () => {
       const records = [

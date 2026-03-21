@@ -1,25 +1,30 @@
 import { AuthManager, createAuthManager } from "./auth.js";
 import { HttpClient, createHttpClient, HttpError } from "./client.js";
-import { UserApi, createUserApi } from "./api/user.js";
-import { WorkoutsApi, createWorkoutsApi } from "./api/workouts.js";
-import { FilesApi, createFilesApi } from "./api/files.js";
-import { FitnessApi, createFitnessApi } from "./api/fitness.js";
-import { PeaksApi, createPeaksApi } from "./api/peaks.js";
+import {
+  UserApi,
+  createUserApi,
+  WorkoutsApi,
+  createWorkoutsApi,
+  FilesApi,
+  createFilesApi,
+  FitnessApi,
+  createFitnessApi,
+  PeaksApi,
+  createPeaksApi,
+} from "./services/trainingpeaks/index.js";
 import { FitFileCache } from "./cache.js";
+import {
+  parseFitFile,
+  type ParsedFitFile,
+} from "./services/fit-analysis/index.js";
 import {
   buildPowerDurationCurve,
   getBestPowerForWorkout,
-  type BuildPowerDurationCurveOptions,
-  type BestPowerResult,
-} from "./api/power.js";
-import { getAerobicDecouplingForWorkout } from "./api/decoupling.js";
-import {
+  getAerobicDecouplingForWorkout,
   compareIntervalsForWorkouts,
-  type CompareIntervalsOptions,
-  type CompareIntervalsResult,
-} from "./api/intervals.js";
-import { parseFitFile, type ParsedFitFile } from "./api/fit.js";
-import { assessComplianceForWorkout } from "./api/compliance.js";
+  assessComplianceForWorkout,
+  type IWorkoutDataProvider,
+} from "./services/workout-analysis/index.js";
 import type {
   ClientOptions,
   User,
@@ -36,9 +41,13 @@ import type {
   PowerDurationCurveResult,
   AerobicDecouplingResult,
   ComplianceResult,
+  BuildPowerDurationCurveOptions,
+  BestPowerResult,
+  CompareIntervalsOptions,
+  CompareIntervalsResult,
 } from "./types.js";
 
-export class TrainingPeaksClient {
+export class TrainingPeaksClient implements IWorkoutDataProvider {
   private authManager: AuthManager;
   private httpClient: HttpClient;
   private userApi: UserApi;
@@ -242,7 +251,14 @@ export type {
   ComplianceStep,
   ComplianceSummary,
   PlanStep,
+  BuildPowerDurationCurveOptions,
+  BestPowerResult,
+  CompareIntervalsOptions,
+  CompareIntervalsResult,
 } from "./types.js";
+
+// Export service interfaces and types
+export type { IWorkoutDataProvider } from "./services/workout-analysis/index.js";
 
 // Export error class
 export { HttpError };

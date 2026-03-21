@@ -1,7 +1,7 @@
 import { gunzipSync } from "node:zlib";
-import type { HttpClient } from "../client.js";
+import type { HttpClient } from "../../client.js";
 import type { UserApi } from "./user.js";
-import type { FitFileCache } from "../cache.js";
+import type { FitFileCache } from "../../cache.js";
 
 interface DeviceFileInfo {
   fileId: string;

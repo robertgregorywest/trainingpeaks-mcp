@@ -8,6 +8,7 @@ import type {
   WorkoutPeaks,
   PeakData,
 } from "../../src/types.js";
+import type { IWorkoutDataProvider } from "../../src/services/workout-analysis/types.js";
 
 // Sample test data
 export const mockUser: User = {
@@ -274,3 +275,17 @@ export function createMockClient() {
 }
 
 export type MockClient = ReturnType<typeof createMockClient>;
+
+export function createMockDataProvider() {
+  return {
+    getWorkout: vi.fn().mockResolvedValue(mockWorkoutSummary),
+    getWorkouts: vi.fn().mockResolvedValue([mockWorkoutSummary]),
+    getWorkoutDetails: vi.fn().mockResolvedValue(mockWorkoutDetail),
+    downloadActivityFile: vi.fn().mockResolvedValue(mockFitBuffer),
+    downloadPlanFitFile: vi.fn().mockResolvedValue(null),
+  } satisfies {
+    [K in keyof IWorkoutDataProvider]: ReturnType<typeof vi.fn>;
+  };
+}
+
+export type MockDataProvider = ReturnType<typeof createMockDataProvider>;

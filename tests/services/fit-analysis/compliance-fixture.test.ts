@@ -1,19 +1,19 @@
 import { describe, it, expect } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { decodeFitBuffer, parsePlanSteps } from "../../src/api/fit.js";
-import { computeStepCompliance } from "../../src/api/compliance.js";
+import {
+  decodeFitBuffer,
+  parsePlanSteps,
+} from "../../../src/services/fit-analysis/decoder.js";
+import { computeStepCompliance } from "../../../src/services/fit-analysis/compliance.js";
 
-const fixturesDir = path.resolve(__dirname, "../fixtures");
+const fixturesDir = path.resolve(__dirname, "../../fixtures");
 
 const planBuffer = fs.readFileSync(
   path.join(fixturesDir, "2026-03-11-plan.fit"),
 );
 const activityBuffer = fs.readFileSync(
   path.join(fixturesDir, "2026-03-11-activity.fit"),
-);
-const workoutSummary = JSON.parse(
-  fs.readFileSync(path.join(fixturesDir, "2026-03-11-workout.json"), "utf-8"),
 );
 
 describe("compliance with real FIT fixtures (2026-03-11 VO2max intervals)", () => {
@@ -35,19 +35,6 @@ describe("compliance with real FIT fixtures (2026-03-11 VO2max intervals)", () =
     const planMessages = await decodeFitBuffer(planBuffer);
     const planSteps = parsePlanSteps(planMessages);
 
-    // The workout structure is:
-    //   0: Easy 5min warmup
-    //   1: Z2 5min
-    //   2: Tempo 2min
-    //   3-4: Burst 30s + Recovery 3min
-    //   5-6: Burst 30s + Recovery 3min
-    //   7-8: Hard 2min + Easy 2min (first of 5 repetitions)
-    //   repeat marker: repeat steps 7-8 for 5 total iterations
-    //   10: Cool down 10min
-    //   11: Open cooldown
-    //
-    // After expansion: 7 + 10 (5×2) + 2 cooldown = 19 steps
-    // Activity has 18 laps because the two cooldown steps merge into one lap.
     expect(planSteps).toHaveLength(19);
 
     // No leaked repeat markers — every step should have a known intensity

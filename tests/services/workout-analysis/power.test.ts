@@ -1,93 +1,38 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
-  computeBestPower,
-  formatDuration,
   buildPowerDurationCurve,
   getBestPowerForWorkout,
-} from "../../src/api/power.js";
+} from "../../../src/services/workout-analysis/power.js";
 import {
-  createMockClient,
+  createMockDataProvider,
   mockWorkoutSummary,
   mockWorkoutSummary2,
   mockWorkoutSummary3,
   mockStrengthWorkout,
-  type MockClient,
-} from "../mocks/client.js";
-import type { TrainingPeaksClient } from "../../src/index.js";
+  type MockDataProvider,
+} from "../../mocks/client.js";
+import type { IWorkoutDataProvider } from "../../../src/services/workout-analysis/types.js";
 
-// Mock fit module
-import * as fitModule from "../../src/api/fit.js";
-vi.mock("../../src/api/fit.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof fitModule>();
-  return {
-    ...actual,
-    decodeFitBuffer: vi.fn(),
-  };
-});
-const mockDecodeFitBuffer = vi.mocked(fitModule.decodeFitBuffer);
+// Mock fit-analysis decoder
+import * as decoderModule from "../../../src/services/fit-analysis/decoder.js";
+vi.mock(
+  "../../../src/services/fit-analysis/decoder.js",
+  async (importOriginal) => {
+    const actual = await importOriginal<typeof decoderModule>();
+    return {
+      ...actual,
+      decodeFitBuffer: vi.fn(),
+    };
+  },
+);
+const mockDecodeFitBuffer = vi.mocked(decoderModule.decodeFitBuffer);
 
-describe("api/power", () => {
-  describe("computeBestPower", () => {
-    it("should find the best average power and start index", () => {
-      const powerStream = [100, 100, 100, 200, 300, 400, 300, 200, 100, 100];
-      const result = computeBestPower(powerStream, 3);
-
-      // Best 3s window: [300, 400, 300] starting at index 4 → avg 333
-      expect(result).toEqual({ bestPower: 333, startIndex: 4 });
-    });
-
-    it("should return null when duration exceeds array length", () => {
-      const powerStream = [100, 200, 300];
-      const result = computeBestPower(powerStream, 5);
-
-      expect(result).toBeNull();
-    });
-
-    it("should return 0 for all-zero power stream", () => {
-      const powerStream = [0, 0, 0, 0, 0];
-      const result = computeBestPower(powerStream, 3);
-
-      expect(result).toEqual({ bestPower: 0, startIndex: 0 });
-    });
-
-    it("should handle single-element duration", () => {
-      const powerStream = [100, 200, 300, 150];
-      const result = computeBestPower(powerStream, 1);
-
-      expect(result).toEqual({ bestPower: 300, startIndex: 2 });
-    });
-
-    it("should handle duration equal to array length", () => {
-      const powerStream = [100, 200, 300];
-      const result = computeBestPower(powerStream, 3);
-
-      expect(result).toEqual({ bestPower: 200, startIndex: 0 });
-    });
-  });
-
-  describe("formatDuration", () => {
-    it("should format seconds only", () => {
-      expect(formatDuration(5)).toBe("5s");
-      expect(formatDuration(30)).toBe("30s");
-    });
-
-    it("should format exact minutes", () => {
-      expect(formatDuration(60)).toBe("1min");
-      expect(formatDuration(300)).toBe("5min");
-      expect(formatDuration(1200)).toBe("20min");
-    });
-
-    it("should format minutes and seconds", () => {
-      expect(formatDuration(90)).toBe("1min 30s");
-      expect(formatDuration(150)).toBe("2min 30s");
-    });
-  });
-
+describe("services/workout-analysis/power", () => {
   describe("getBestPowerForWorkout", () => {
-    let mockClient: MockClient;
+    let provider: MockDataProvider;
 
     beforeEach(() => {
-      mockClient = createMockClient();
+      provider = createMockDataProvider();
     });
 
     function setupFitMock(recordMesgs: Record<string, unknown>[] | undefined) {
@@ -101,7 +46,7 @@ describe("api/power", () => {
       setupFitMock(records);
 
       const result = await getBestPowerForWorkout(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         100,
         [10, 30],
       );
@@ -121,7 +66,7 @@ describe("api/power", () => {
       setupFitMock(records);
 
       const result = await getBestPowerForWorkout(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         100,
         [20],
       );
@@ -134,14 +79,10 @@ describe("api/power", () => {
     });
 
     it("should throw when no activity file is available", async () => {
-      mockClient.downloadActivityFile.mockResolvedValue(null);
+      provider.downloadActivityFile.mockResolvedValue(null);
 
       await expect(
-        getBestPowerForWorkout(
-          mockClient as unknown as TrainingPeaksClient,
-          100,
-          [10],
-        ),
+        getBestPowerForWorkout(provider as IWorkoutDataProvider, 100, [10]),
       ).rejects.toThrow("No activity file available for workout 100");
     });
 
@@ -150,11 +91,7 @@ describe("api/power", () => {
       setupFitMock(records);
 
       await expect(
-        getBestPowerForWorkout(
-          mockClient as unknown as TrainingPeaksClient,
-          100,
-          [5],
-        ),
+        getBestPowerForWorkout(provider as IWorkoutDataProvider, 100, [5]),
       ).rejects.toThrow("No power data found in workout records");
     });
 
@@ -162,11 +99,7 @@ describe("api/power", () => {
       setupFitMock(undefined);
 
       await expect(
-        getBestPowerForWorkout(
-          mockClient as unknown as TrainingPeaksClient,
-          100,
-          [5],
-        ),
+        getBestPowerForWorkout(provider as IWorkoutDataProvider, 100, [5]),
       ).rejects.toThrow("No record data found in FIT file");
     });
 
@@ -175,7 +108,7 @@ describe("api/power", () => {
       setupFitMock(records);
 
       const result = await getBestPowerForWorkout(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         100,
         [30, 5, 15],
       );
@@ -185,10 +118,10 @@ describe("api/power", () => {
   });
 
   describe("buildPowerDurationCurve", () => {
-    let mockClient: MockClient;
+    let provider: MockDataProvider;
 
     beforeEach(() => {
-      mockClient = createMockClient();
+      provider = createMockDataProvider();
     });
 
     function setupFitMock(recordMesgs: Record<string, unknown>[] | undefined) {
@@ -196,7 +129,7 @@ describe("api/power", () => {
     }
 
     it("should filter to cycling workouts only", async () => {
-      mockClient.getWorkouts.mockResolvedValue([
+      provider.getWorkouts.mockResolvedValue([
         mockWorkoutSummary, // Bike
         mockWorkoutSummary3, // Run
         mockStrengthWorkout, // Strength
@@ -205,7 +138,7 @@ describe("api/power", () => {
       setupFitMock(records);
 
       const result = await buildPowerDurationCurve(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",
@@ -214,14 +147,14 @@ describe("api/power", () => {
       );
 
       expect(result.workoutsAnalysed).toBe(1);
-      expect(mockClient.downloadActivityFile).toHaveBeenCalledTimes(1);
-      expect(mockClient.downloadActivityFile).toHaveBeenCalledWith(
+      expect(provider.downloadActivityFile).toHaveBeenCalledTimes(1);
+      expect(provider.downloadActivityFile).toHaveBeenCalledWith(
         mockWorkoutSummary.workoutId,
       );
     });
 
     it("should exclude specified workout IDs", async () => {
-      mockClient.getWorkouts.mockResolvedValue([
+      provider.getWorkouts.mockResolvedValue([
         mockWorkoutSummary,
         mockWorkoutSummary2,
       ]);
@@ -229,7 +162,7 @@ describe("api/power", () => {
       setupFitMock(records);
 
       const result = await buildPowerDurationCurve(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",
@@ -239,16 +172,16 @@ describe("api/power", () => {
       );
 
       expect(result.workoutsAnalysed).toBe(1);
-      expect(mockClient.downloadActivityFile).toHaveBeenCalledWith(
+      expect(provider.downloadActivityFile).toHaveBeenCalledWith(
         mockWorkoutSummary2.workoutId,
       );
-      expect(mockClient.downloadActivityFile).not.toHaveBeenCalledWith(
+      expect(provider.downloadActivityFile).not.toHaveBeenCalledWith(
         mockWorkoutSummary.workoutId,
       );
     });
 
     it("should find best power across multiple workouts", async () => {
-      mockClient.getWorkouts.mockResolvedValue([
+      provider.getWorkouts.mockResolvedValue([
         mockWorkoutSummary,
         mockWorkoutSummary2,
       ]);
@@ -267,7 +200,7 @@ describe("api/power", () => {
       });
 
       const result = await buildPowerDurationCurve(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",
@@ -282,10 +215,10 @@ describe("api/power", () => {
     });
 
     it("should return empty curve when no workouts found", async () => {
-      mockClient.getWorkouts.mockResolvedValue([]);
+      provider.getWorkouts.mockResolvedValue([]);
 
       const result = await buildPowerDurationCurve(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",
@@ -299,12 +232,12 @@ describe("api/power", () => {
     });
 
     it("should warn for workouts with no power data", async () => {
-      mockClient.getWorkouts.mockResolvedValue([mockWorkoutSummary]);
+      provider.getWorkouts.mockResolvedValue([mockWorkoutSummary]);
       const records = Array.from({ length: 60 }, () => ({ heartRate: 140 }));
       setupFitMock(records);
 
       const result = await buildPowerDurationCurve(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",
@@ -319,12 +252,12 @@ describe("api/power", () => {
     });
 
     it("should include duration labels in curve points", async () => {
-      mockClient.getWorkouts.mockResolvedValue([mockWorkoutSummary]);
+      provider.getWorkouts.mockResolvedValue([mockWorkoutSummary]);
       const records = Array.from({ length: 1300 }, () => ({ power: 250 }));
       setupFitMock(records);
 
       const result = await buildPowerDurationCurve(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",
@@ -341,12 +274,12 @@ describe("api/power", () => {
     });
 
     it("should skip durations where no workout has enough data", async () => {
-      mockClient.getWorkouts.mockResolvedValue([mockWorkoutSummary]);
+      provider.getWorkouts.mockResolvedValue([mockWorkoutSummary]);
       const records = Array.from({ length: 10 }, () => ({ power: 250 }));
       setupFitMock(records);
 
       const result = await buildPowerDurationCurve(
-        mockClient as unknown as TrainingPeaksClient,
+        provider as IWorkoutDataProvider,
         {
           startDate: "2024-01-01",
           endDate: "2024-01-31",

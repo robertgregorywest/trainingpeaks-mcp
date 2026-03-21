@@ -1,65 +1,29 @@
-import type { TrainingPeaksClient } from "../index.js";
-import type { PowerDurationCurveResult, WorkoutSummary } from "../types.js";
-import { decodeFitBuffer, extractPowerStream } from "./fit.js";
-
-export function computeBestPower(
-  powerStream: number[],
-  durationSeconds: number,
-): { bestPower: number; startIndex: number } | null {
-  if (durationSeconds > powerStream.length) {
-    return null;
-  }
-
-  let windowSum = 0;
-  for (let i = 0; i < durationSeconds; i++) {
-    windowSum += powerStream[i] ?? 0;
-  }
-
-  let bestSum = windowSum;
-  let bestStart = 0;
-
-  for (let i = durationSeconds; i < powerStream.length; i++) {
-    windowSum +=
-      (powerStream[i] ?? 0) - (powerStream[i - durationSeconds] ?? 0);
-    if (windowSum > bestSum) {
-      bestSum = windowSum;
-      bestStart = i - durationSeconds + 1;
-    }
-  }
-
-  return {
-    bestPower: Math.round(bestSum / durationSeconds),
-    startIndex: bestStart,
-  };
-}
-
-export function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  if (secs === 0) return `${mins}min`;
-  return `${mins}min ${secs}s`;
-}
-
-export interface BuildPowerDurationCurveOptions {
-  startDate: string;
-  endDate: string;
-  durations?: number[];
-  exclude_workout_ids?: number[];
-}
+import type { IWorkoutDataProvider } from "./types.js";
+import type {
+  PowerDurationCurveResult,
+  WorkoutSummary,
+  BuildPowerDurationCurveOptions,
+  BestPowerResult,
+} from "../../types.js";
+import {
+  decodeFitBuffer,
+  extractPowerStream,
+  computeBestPower,
+  formatDuration,
+} from "../fit-analysis/index.js";
 
 const DEFAULT_DURATIONS = [
   5, 10, 20, 30, 60, 90, 120, 180, 240, 300, 360, 600, 1200,
 ];
 
 export async function buildPowerDurationCurve(
-  client: TrainingPeaksClient,
+  provider: IWorkoutDataProvider,
   args: BuildPowerDurationCurveOptions,
 ): Promise<PowerDurationCurveResult> {
   const durations = args.durations ?? DEFAULT_DURATIONS;
   const excludeSet = new Set(args.exclude_workout_ids ?? []);
 
-  const allWorkouts = await client.getWorkouts(args.startDate, args.endDate);
+  const allWorkouts = await provider.getWorkouts(args.startDate, args.endDate);
   const cyclingWorkouts = allWorkouts.filter(
     (w) => w.workoutType === "Bike" && !excludeSet.has(w.workoutId),
   );
@@ -76,7 +40,7 @@ export async function buildPowerDurationCurve(
     const results = await Promise.all(
       batch.map(async (workout) => {
         try {
-          const buffer = await client.downloadActivityFile(workout.workoutId);
+          const buffer = await provider.downloadActivityFile(workout.workoutId);
           if (!buffer) {
             warnings.push(`Workout ${workout.workoutId}: no activity file`);
             return null;
@@ -146,26 +110,13 @@ export async function buildPowerDurationCurve(
   };
 }
 
-export interface BestPowerResult {
-  workoutId: number;
-  workoutDate: string;
-  workoutTitle?: string;
-  totalRecords: number;
-  results: Array<{
-    durationSeconds: number;
-    bestPowerWatts: number | null;
-    startOffsetSeconds?: number;
-    error?: string;
-  }>;
-}
-
 export async function getBestPowerForWorkout(
-  client: TrainingPeaksClient,
+  provider: IWorkoutDataProvider,
   workoutId: number,
   durations: number[],
 ): Promise<BestPowerResult> {
-  const workout = await client.getWorkout(workoutId);
-  const buffer = await client.downloadActivityFile(workoutId);
+  const workout = await provider.getWorkout(workoutId);
+  const buffer = await provider.downloadActivityFile(workoutId);
 
   if (!buffer) {
     throw new Error(`No activity file available for workout ${workoutId}`);

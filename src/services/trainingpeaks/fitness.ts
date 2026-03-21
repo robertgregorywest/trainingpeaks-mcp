@@ -1,6 +1,6 @@
-import type { HttpClient } from '../client.js';
-import type { UserApi } from './user.js';
-import type { FitnessMetrics } from '../types.js';
+import type { HttpClient } from "../../client.js";
+import type { UserApi } from "./user.js";
+import type { FitnessMetrics } from "../../types.js";
 
 interface FitnessDataItem {
   workoutDay: string;
@@ -24,19 +24,30 @@ export class FitnessApi {
     this.userApi = userApi;
   }
 
-  async getFitnessData(startDate: string, endDate: string): Promise<FitnessMetrics[]> {
+  async getFitnessData(
+    startDate: string,
+    endDate: string,
+  ): Promise<FitnessMetrics[]> {
     const athleteId = await this.userApi.getAthleteId();
     const endpoint = `/fitness/v1/athletes/${athleteId}/reporting/performancedata/${startDate}/${endDate}`;
     const response = await this.client.request<FitnessDataResponse>(endpoint, {
-      method: 'POST',
-      body: { atlConstant: 7, atlStart: 0, ctlConstant: 42, ctlStart: 0, workoutTypes: [] },
+      method: "POST",
+      body: {
+        atlConstant: 7,
+        atlStart: 0,
+        ctlConstant: 42,
+        ctlStart: 0,
+        workoutTypes: [],
+      },
     });
 
     // Handle different response structures
-    const data = Array.isArray(response) ? response : (response as { data: FitnessDataItem[] }).data || [];
+    const data = Array.isArray(response)
+      ? response
+      : (response as { data: FitnessDataItem[] }).data || [];
 
     if (!Array.isArray(data)) {
-      console.error('Unexpected fitness API response structure');
+      console.error("Unexpected fitness API response structure");
       return [];
     }
 
@@ -44,7 +55,7 @@ export class FitnessApi {
       // Parse CTL/ATL/TSB - they may be strings like "NaN" or numbers
       const parseMetric = (val: number | string | undefined): number => {
         if (val === undefined || val === null) return 0;
-        if (typeof val === 'string') {
+        if (typeof val === "string") {
           const parsed = parseFloat(val);
           return isNaN(parsed) ? 0 : parsed;
         }
@@ -52,7 +63,7 @@ export class FitnessApi {
       };
 
       return {
-        date: d.workoutDay?.split('T')[0] || '',
+        date: d.workoutDay?.split("T")[0] || "",
         ctl: parseMetric(d.ctl),
         atl: parseMetric(d.atl),
         tsb: parseMetric(d.tsb),
@@ -62,7 +73,7 @@ export class FitnessApi {
   }
 
   async getCurrentFitness(): Promise<FitnessMetrics> {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     const data = await this.getFitnessData(today, today);
     return (
       data[0] ?? {
@@ -75,6 +86,9 @@ export class FitnessApi {
   }
 }
 
-export function createFitnessApi(client: HttpClient, userApi: UserApi): FitnessApi {
+export function createFitnessApi(
+  client: HttpClient,
+  userApi: UserApi,
+): FitnessApi {
   return new FitnessApi(client, userApi);
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getCurrentDate } from "../../src/api/datetime.js";
+import { getCurrentDate } from "../../src/services/datetime.js";
 
 // Fix time to 2026-02-15T14:30:45.000Z for deterministic tests
 const FIXED_NOW = new Date("2026-02-15T14:30:45.000Z");
@@ -13,7 +13,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("api/datetime getCurrentDate", () => {
+describe("services/datetime getCurrentDate", () => {
   it("returns ISO format by default", () => {
     const result = getCurrentDate();
     expect(result.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
