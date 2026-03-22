@@ -116,6 +116,10 @@
     {
       "name": "get_current_date",
       "description": "Get the current date in various formats (ISO, US, EU, custom)"
+    },
+    {
+      "name": "build_zwo_workout",
+      "description": "Build a Zwift .zwo workout file from structured segments (warmup, cooldown, steady, intervals, ramp, freeride)"
     }
   ],
   "compatibility": {
