@@ -1,8 +1,16 @@
-import type { Browser, BrowserContext } from 'playwright';
-import type { AuthCredentials, AuthToken } from './types.js';
+import * as fs from "node:fs/promises";
+import * as os from "node:os";
+import * as path from "node:path";
+import type { Browser, BrowserContext } from "playwright";
+import type { AuthCredentials, AuthToken } from "./types.js";
 
-const LOGIN_URL = 'https://home.trainingpeaks.com/login';
-const API_BASE = 'tpapi.trainingpeaks.com';
+const LOGIN_URL = "https://home.trainingpeaks.com/login";
+const API_BASE = "tpapi.trainingpeaks.com";
+const TOKEN_PATH = path.join(
+  os.homedir(),
+  ".trainingpeaks-mcp",
+  "auth-token.json",
+);
 
 export class AuthManager {
   private credentials: AuthCredentials;
@@ -18,8 +26,15 @@ export class AuthManager {
   }
 
   async authenticate(): Promise<string> {
-    if (this.token && !this.isTokenExpired()) {
+    if (this.token) {
       return this.token.token;
+    }
+
+    // Try loading a cached token from disk
+    const cached = await this.loadCachedToken();
+    if (cached) {
+      this.token = { token: cached };
+      return cached;
     }
 
     if (this.authenticatePromise) {
@@ -33,9 +48,11 @@ export class AuthManager {
   }
 
   private async doAuthenticate(): Promise<string> {
-    console.error(`[trainingpeaks-mcp] Authenticating (user=${this.credentials.username}, pass length=${this.credentials.password.length})`);
+    console.error(
+      `[trainingpeaks-mcp] Authenticating (user=${this.credentials.username}, pass length=${this.credentials.password.length})`,
+    );
 
-    const { chromium } = await import('playwright');
+    const { chromium } = await import("playwright");
     this.browser = await chromium.launch({ headless: this.headless });
     this.context = await this.browser.newContext();
     const page = await this.context.newPage();
@@ -43,25 +60,28 @@ export class AuthManager {
     let capturedToken: string | null = null;
 
     // Intercept API requests to capture the auth token from any tpapi request
-    page.on('request', (request) => {
+    page.on("request", (request) => {
       const url = request.url();
       if (url.includes(API_BASE)) {
-        const authHeader = request.headers()['authorization'];
-        if (authHeader?.startsWith('Bearer ')) {
+        const authHeader = request.headers()["authorization"];
+        if (authHeader?.startsWith("Bearer ")) {
           capturedToken = authHeader.substring(7);
         }
       }
     });
 
     try {
-      await page.goto(LOGIN_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.goto(LOGIN_URL, {
+        waitUntil: "domcontentloaded",
+        timeout: 60000,
+      });
 
       // Wait for the login form to be ready
       await page.waitForSelector('input[name="Username"]', { timeout: 30000 });
 
       // Handle cookie consent popup if present
       try {
-        const acceptButton = page.locator('#onetrust-accept-btn-handler');
+        const acceptButton = page.locator("#onetrust-accept-btn-handler");
         await acceptButton.click({ timeout: 5000 });
       } catch {
         // Cookie popup may not appear, continue
@@ -79,13 +99,16 @@ export class AuthManager {
 
       // Check if we're on an error page or need to handle something
       const currentUrl = page.url();
-      if (currentUrl.includes('login')) {
+      if (currentUrl.includes("login")) {
         // Still on login page, check for errors
-        const errorMsg = await page.locator('.error-message, .alert-danger, [class*="error"]').textContent().catch(() => null);
+        const errorMsg = await page
+          .locator('.error-message, .alert-danger, [class*="error"]')
+          .textContent()
+          .catch(() => null);
         if (errorMsg) {
           throw new Error(`Login failed: ${errorMsg}`);
         }
-        throw new Error('Login failed - still on login page');
+        throw new Error("Login failed - still on login page");
       }
 
       // Give time for API calls to complete and token to be captured
@@ -94,9 +117,7 @@ export class AuthManager {
       if (!capturedToken) {
         // Try to get token from cookies as fallback
         const cookies = await this.context.cookies();
-        const authCookie = cookies.find(
-          (c) => c.name === 'Production_tpAuth'
-        );
+        const authCookie = cookies.find((c) => c.name === "Production_tpAuth");
         if (authCookie) {
           capturedToken = authCookie.value;
         }
@@ -104,14 +125,12 @@ export class AuthManager {
 
       if (!capturedToken) {
         throw new Error(
-          'Failed to capture authentication token. Check your credentials.'
+          "Failed to capture authentication token. Check your credentials.",
         );
       }
 
-      this.token = {
-        token: capturedToken,
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // Assume 1 hour expiry
-      };
+      this.token = { token: capturedToken };
+      await this.cacheToken(capturedToken);
 
       return this.token.token;
     } finally {
@@ -122,21 +141,39 @@ export class AuthManager {
   async refreshToken(): Promise<string> {
     this.token = null;
     this.authenticatePromise = null;
+    await this.deleteCachedToken();
     return this.authenticate();
   }
 
   getToken(): string | null {
-    if (this.token && !this.isTokenExpired()) {
-      return this.token.token;
-    }
-    return null;
+    return this.token?.token ?? null;
   }
 
-  isTokenExpired(): boolean {
-    if (!this.token?.expiresAt) {
-      return true;
+  private async loadCachedToken(): Promise<string | null> {
+    try {
+      const data = await fs.readFile(TOKEN_PATH, "utf-8");
+      const parsed = JSON.parse(data) as { token?: string };
+      return parsed.token ?? null;
+    } catch {
+      return null;
     }
-    return this.token.expiresAt <= new Date();
+  }
+
+  private async cacheToken(token: string): Promise<void> {
+    try {
+      await fs.mkdir(path.dirname(TOKEN_PATH), { recursive: true });
+      await fs.writeFile(TOKEN_PATH, JSON.stringify({ token }), "utf-8");
+    } catch {
+      // Non-fatal — caching is best-effort
+    }
+  }
+
+  private async deleteCachedToken(): Promise<void> {
+    try {
+      await fs.unlink(TOKEN_PATH);
+    } catch {
+      // File may not exist
+    }
   }
 
   private async cleanup(): Promise<void> {
@@ -158,7 +195,7 @@ export class AuthManager {
 
 export function createAuthManager(
   credentials: AuthCredentials,
-  headless = true
+  headless = true,
 ): AuthManager {
   return new AuthManager(credentials, headless);
 }
