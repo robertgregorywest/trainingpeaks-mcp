@@ -1,6 +1,6 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import * as os from 'node:os';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import * as os from "node:os";
 
 interface CacheEntry {
   path: string;
@@ -20,10 +20,12 @@ export class FitFileCache {
   private maxBytes: number;
   private index = new Map<number, CacheEntry>();
   private initialized = false;
+  private accessCounter = 0;
 
   constructor(options?: { cacheDir?: string; maxBytes?: number }) {
     this.cacheDir =
-      options?.cacheDir ?? path.join(os.homedir(), '.trainingpeaks-mcp', 'cache', 'fit');
+      options?.cacheDir ??
+      path.join(os.homedir(), ".trainingpeaks-mcp", "cache", "fit");
     this.maxBytes = options?.maxBytes ?? 500 * 1024 * 1024; // 500MB
   }
 
@@ -34,8 +36,8 @@ export class FitFileCache {
     try {
       const files = await fs.readdir(this.cacheDir);
       for (const file of files) {
-        if (!file.endsWith('.fit')) continue;
-        const workoutId = parseInt(file.replace('.fit', ''), 10);
+        if (!file.endsWith(".fit")) continue;
+        const workoutId = parseInt(file.replace(".fit", ""), 10);
         if (isNaN(workoutId)) continue;
         const filePath = path.join(this.cacheDir, file);
         const stat = await fs.stat(filePath);
@@ -58,10 +60,10 @@ export class FitFileCache {
 
     try {
       const buffer = await fs.readFile(entry.path);
-      const now = Date.now();
-      entry.lastAccess = now;
+      entry.lastAccess = ++this.accessCounter;
       // Update mtime for LRU ordering on next startup
-      await fs.utimes(entry.path, new Date(now), new Date(now)).catch(() => {});
+      const now = new Date();
+      await fs.utimes(entry.path, now, now).catch(() => {});
       return buffer;
     } catch {
       // File disappeared — remove from index
@@ -75,8 +77,11 @@ export class FitFileCache {
     const filePath = path.join(this.cacheDir, `${workoutId}.fit`);
 
     await fs.writeFile(filePath, buffer);
-    const now = Date.now();
-    this.index.set(workoutId, { path: filePath, size: buffer.length, lastAccess: now });
+    this.index.set(workoutId, {
+      path: filePath,
+      size: buffer.length,
+      lastAccess: ++this.accessCounter,
+    });
 
     await this.evict();
   }
@@ -141,7 +146,9 @@ export class FitFileCache {
     if (totalBytes <= this.maxBytes) return;
 
     // Sort by lastAccess ascending (oldest first)
-    const sorted = [...this.index.entries()].sort((a, b) => a[1].lastAccess - b[1].lastAccess);
+    const sorted = [...this.index.entries()].sort(
+      (a, b) => a[1].lastAccess - b[1].lastAccess,
+    );
 
     for (const [id, entry] of sorted) {
       if (totalBytes <= this.maxBytes) break;
