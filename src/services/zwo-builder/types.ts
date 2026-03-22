@@ -5,7 +5,6 @@ export interface WarmupSegment {
   duration: number;
   powerStart?: PowerSpec;
   powerEnd?: PowerSpec;
-  cadence?: number;
 }
 
 export interface CooldownSegment {
@@ -13,14 +12,12 @@ export interface CooldownSegment {
   duration: number;
   powerStart?: PowerSpec;
   powerEnd?: PowerSpec;
-  cadence?: number;
 }
 
 export interface SteadySegment {
   type: "steady";
   duration: number;
   power: PowerSpec;
-  cadence?: number;
 }
 
 export interface IntervalsSegment {
@@ -30,8 +27,6 @@ export interface IntervalsSegment {
   onPower: PowerSpec;
   offDuration: number;
   offPower: PowerSpec;
-  onCadence?: number;
-  offCadence?: number;
 }
 
 export interface RampSegment {
@@ -39,13 +34,11 @@ export interface RampSegment {
   duration: number;
   powerStart: PowerSpec;
   powerEnd: PowerSpec;
-  cadence?: number;
 }
 
 export interface FreeRideSegment {
   type: "freeride";
   duration: number;
-  cadence?: number;
 }
 
 export type Segment =

@@ -16,42 +16,34 @@ export function toFtpFraction(spec: PowerSpec, ftp?: number): number {
   return Math.round((spec.watts / ftp) * 100) / 100;
 }
 
-function cadenceAttr(cadence?: number): string {
-  return cadence != null ? ` Cadence="${cadence}"` : "";
-}
-
 function buildSegmentXml(seg: Segment, ftp?: number): string {
   switch (seg.type) {
     case "warmup": {
       const low = toFtpFraction(seg.powerStart ?? { ftpPercent: 25 }, ftp);
       const high = toFtpFraction(seg.powerEnd ?? { ftpPercent: 75 }, ftp);
-      return `        <Warmup Duration="${seg.duration}" PowerLow="${low}" PowerHigh="${high}"${cadenceAttr(seg.cadence)} />`;
+      return `        <Warmup Duration="${seg.duration}" PowerLow="${low}" PowerHigh="${high}" />`;
     }
     case "cooldown": {
       const low = toFtpFraction(seg.powerStart ?? { ftpPercent: 75 }, ftp);
       const high = toFtpFraction(seg.powerEnd ?? { ftpPercent: 25 }, ftp);
-      return `        <Cooldown Duration="${seg.duration}" PowerLow="${high}" PowerHigh="${low}"${cadenceAttr(seg.cadence)} />`;
+      return `        <Cooldown Duration="${seg.duration}" PowerLow="${high}" PowerHigh="${low}" />`;
     }
     case "steady": {
       const power = toFtpFraction(seg.power, ftp);
-      return `        <SteadyState Duration="${seg.duration}" Power="${power}"${cadenceAttr(seg.cadence)} />`;
+      return `        <SteadyState Duration="${seg.duration}" Power="${power}" />`;
     }
     case "intervals": {
       const onPower = toFtpFraction(seg.onPower, ftp);
       const offPower = toFtpFraction(seg.offPower, ftp);
-      let attrs = ` Repeat="${seg.repeat}" OnDuration="${seg.onDuration}" OnPower="${onPower}" OffDuration="${seg.offDuration}" OffPower="${offPower}"`;
-      if (seg.onCadence != null) attrs += ` Cadence="${seg.onCadence}"`;
-      if (seg.offCadence != null)
-        attrs += ` CadenceResting="${seg.offCadence}"`;
-      return `        <IntervalsT${attrs} />`;
+      return `        <IntervalsT Repeat="${seg.repeat}" OnDuration="${seg.onDuration}" OnPower="${onPower}" OffDuration="${seg.offDuration}" OffPower="${offPower}" />`;
     }
     case "ramp": {
       const low = toFtpFraction(seg.powerStart, ftp);
       const high = toFtpFraction(seg.powerEnd, ftp);
-      return `        <Ramp Duration="${seg.duration}" PowerLow="${low}" PowerHigh="${high}"${cadenceAttr(seg.cadence)} />`;
+      return `        <Ramp Duration="${seg.duration}" PowerLow="${low}" PowerHigh="${high}" />`;
     }
     case "freeride": {
-      return `        <FreeRide Duration="${seg.duration}"${cadenceAttr(seg.cadence)} />`;
+      return `        <FreeRide Duration="${seg.duration}" />`;
     }
   }
 }

@@ -24,7 +24,6 @@ const segmentSchema = z.discriminatedUnion("type", [
     powerEnd: powerSpec
       .optional()
       .describe("Ending power (defaults to 75% FTP)"),
-    cadence: z.number().optional().describe("Target cadence RPM"),
   }),
   z.object({
     type: z.literal("cooldown"),
@@ -35,13 +34,11 @@ const segmentSchema = z.discriminatedUnion("type", [
     powerEnd: powerSpec
       .optional()
       .describe("Ending power (defaults to 25% FTP)"),
-    cadence: z.number().optional().describe("Target cadence RPM"),
   }),
   z.object({
     type: z.literal("steady"),
     duration: z.number().describe("Duration in seconds"),
     power: powerSpec.describe("Constant power target"),
-    cadence: z.number().optional().describe("Target cadence RPM"),
   }),
   z.object({
     type: z.literal("intervals"),
@@ -50,20 +47,16 @@ const segmentSchema = z.discriminatedUnion("type", [
     onPower: powerSpec.describe("Work interval power target"),
     offDuration: z.number().describe("Rest interval duration in seconds"),
     offPower: powerSpec.describe("Rest interval power target"),
-    onCadence: z.number().optional().describe("Work interval cadence RPM"),
-    offCadence: z.number().optional().describe("Rest interval cadence RPM"),
   }),
   z.object({
     type: z.literal("ramp"),
     duration: z.number().describe("Duration in seconds"),
     powerStart: powerSpec.describe("Starting power"),
     powerEnd: powerSpec.describe("Ending power"),
-    cadence: z.number().optional().describe("Target cadence RPM"),
   }),
   z.object({
     type: z.literal("freeride"),
     duration: z.number().describe("Duration in seconds"),
-    cadence: z.number().optional().describe("Target cadence RPM"),
   }),
 ]);
 

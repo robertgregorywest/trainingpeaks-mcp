@@ -159,26 +159,6 @@ describe("buildZwoXml", () => {
       );
     });
 
-    it("intervals with cadence", () => {
-      const xml = buildZwoXml({
-        name: "INT",
-        segments: [
-          {
-            type: "intervals",
-            repeat: 3,
-            onDuration: 60,
-            onPower: { ftpPercent: 110 },
-            offDuration: 60,
-            offPower: { ftpPercent: 50 },
-            onCadence: 100,
-            offCadence: 80,
-          },
-        ],
-      });
-      expect(xml).toContain('Cadence="100"');
-      expect(xml).toContain('CadenceResting="80"');
-    });
-
     it("ramp", () => {
       const xml = buildZwoXml({
         name: "R",
@@ -202,23 +182,6 @@ describe("buildZwoXml", () => {
         segments: [{ type: "freeride", duration: 600 }],
       });
       expect(xml).toContain('<FreeRide Duration="600" />');
-    });
-
-    it("steady with cadence", () => {
-      const xml = buildZwoXml({
-        name: "SS",
-        segments: [
-          {
-            type: "steady",
-            duration: 600,
-            power: { ftpPercent: 88 },
-            cadence: 95,
-          },
-        ],
-      });
-      expect(xml).toContain(
-        '<SteadyState Duration="600" Power="0.88" Cadence="95" />',
-      );
     });
   });
 
