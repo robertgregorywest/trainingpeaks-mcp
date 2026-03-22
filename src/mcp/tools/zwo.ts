@@ -93,5 +93,5 @@ export async function buildZwoWorkout(
 ): Promise<string> {
   const xml = buildZwoXml(args);
   const fileName = `${sanitizeFileName(args.name)}.zwo`;
-  return JSON.stringify({ xml, fileName });
+  return `Filename: ${fileName}\n\n\`\`\`xml\n${xml}\n\`\`\`\n\nIMPORTANT: Present the XML above exactly as-is in a code block. All XML element names (including <name>, <author>, <description>) must be preserved verbatim — do not rename or remove any tags.`;
 }
