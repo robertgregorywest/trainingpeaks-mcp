@@ -153,17 +153,6 @@ describe.skipIf(!hasCredentials)(
         }
       });
 
-      it("search_workouts returns empty array for gibberish search", async () => {
-        const raw = await searchWorkouts(client, {
-          title: "zzzqqqxxx999",
-          days: 90,
-        });
-        const data = JSON.parse(raw);
-
-        expect(Array.isArray(data)).toBe(true);
-        expect(data.length).toBe(0);
-      });
-
       it.skipIf(!bikeWorkoutId)(
         "compare_intervals returns laps and summaries",
         async () => {

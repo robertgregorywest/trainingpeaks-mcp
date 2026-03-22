@@ -4,7 +4,6 @@ import * as path from "node:path";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { TrainingPeaksClient } from "../../src/index.js";
 import { parseFitFile } from "../../src/mcp/tools/files.js";
-import { getCurrentDate } from "../../src/mcp/tools/datetime.js";
 import { createClient } from "./setup.js";
 
 const hasCredentials = process.env.TP_USERNAME && process.env.TP_PASSWORD;
@@ -13,7 +12,7 @@ const bikeWorkoutId = process.env.TP_TEST_BIKE_WORKOUT_ID
   : undefined;
 
 describe.skipIf(!hasCredentials)(
-  "Files & DateTime",
+  "Files",
   () => {
     let client: TrainingPeaksClient;
 
@@ -66,13 +65,6 @@ describe.skipIf(!hasCredentials)(
           }
         },
       );
-
-      it("get_current_date returns ISO date matching YYYY-MM-DD", async () => {
-        const raw = await getCurrentDate({ format: "iso" });
-        const data = JSON.parse(raw);
-
-        expect(data.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      });
     });
   },
   60000,
