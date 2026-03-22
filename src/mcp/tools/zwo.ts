@@ -93,5 +93,6 @@ export async function buildZwoWorkout(
 ): Promise<string> {
   const xml = buildZwoXml(args);
   const fileName = `${sanitizeFileName(args.name)}.zwo`;
-  return `Filename: ${fileName}\n\n\`\`\`xml\n${xml}\n\`\`\`\n\nIMPORTANT: Present the XML above exactly as-is in a code block. All XML element names (including <name>, <author>, <description>) must be preserved verbatim — do not rename or remove any tags.`;
+  const xmlBase64 = Buffer.from(xml, "utf-8").toString("base64");
+  return `Filename: ${fileName}\nXML (base64-encoded): ${xmlBase64}\n\nDecode the base64 above to get the ZWO XML. Present the decoded XML to the user in a code block.`;
 }

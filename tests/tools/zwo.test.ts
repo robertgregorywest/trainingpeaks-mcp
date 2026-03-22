@@ -1,8 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { buildZwoWorkout } from "../../src/mcp/tools/zwo.js";
 
+function decodeXml(result: string): string {
+  const match = result.match(/XML \(base64-encoded\): (.+)/);
+  if (!match) throw new Error("No base64 XML found in result");
+  return Buffer.from(match[1], "base64").toString("utf-8");
+}
+
 describe("zwo tool handler", () => {
-  it("returns filename and XML in markdown code block", async () => {
+  it("returns filename and base64-encoded XML", async () => {
     const result = await buildZwoWorkout({
       name: "Sweet Spot",
       ftp: 250,
@@ -14,10 +20,12 @@ describe("zwo tool handler", () => {
     });
 
     expect(result).toContain("Filename: Sweet_Spot.zwo");
-    expect(result).toContain("```xml");
-    expect(result).toContain("<workout_file>");
-    expect(result).toContain('Power="0.9"');
-    expect(result).toContain("<name>Sweet Spot</name>");
+    expect(result).toContain("XML (base64-encoded):");
+
+    const xml = decodeXml(result);
+    expect(xml).toContain("<workout_file>");
+    expect(xml).toContain('Power="0.9"');
+    expect(xml).toContain("<name>Sweet Spot</name>");
   });
 
   it("sanitizes filename from workout name", async () => {
@@ -47,8 +55,9 @@ describe("zwo tool handler", () => {
       ],
     });
 
-    expect(result).toContain('<IntervalsT Repeat="4"');
-    expect(result).toContain('OnPower="1"');
-    expect(result).toContain('OffPower="0.5"');
+    const xml = decodeXml(result);
+    expect(xml).toContain('<IntervalsT Repeat="4"');
+    expect(xml).toContain('OnPower="1"');
+    expect(xml).toContain('OffPower="0.5"');
   });
 });
