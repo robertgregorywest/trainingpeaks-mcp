@@ -250,9 +250,58 @@ export function createMcpServer(client: ITrainingPeaksClient): McpServer {
   // ZWO workout builder
   tool(
     "build_zwo_workout",
-    "Build a Zwift .zwo workout file from structured segments. Segment types: warmup (ramp up), cooldown (ramp down), steady (constant power), intervals (repeated on/off work/rest), ramp (linear power change), freeride (no power target). Power can be specified as absolute watts via { watts: 250 } (requires ftp parameter for conversion) or as FTP percentage via { ftpPercent: 75 }. Returns XML string and suggested filename.",
+    "Build a Zwift .zwo workout file from structured segments. Segment types: warmup (ramp up), cooldown (ramp down), steady (constant power), intervals (repeated on/off work/rest), ramp (linear power change), freeride (no power target). IMPORTANT: For repeated work/rest sets, ALWAYS use the 'intervals' segment type with a repeat count — not multiple individual steady segments. Power can be specified as absolute watts via { watts: 250 } (requires ftp parameter for conversion) or as FTP percentage via { ftpPercent: 75 }. Returns XML string and suggested filename.",
     buildZwoSchema.shape,
     (args) => buildZwoWorkout(args),
+  );
+
+  // ZWO building guidance prompt
+  server.registerPrompt(
+    "build-zwo",
+    {
+      title: "Build ZWO Workout",
+      description:
+        "Guidance for structuring a Zwift .zwo workout using build_zwo_workout. Use this prompt before calling the tool.",
+    },
+    async () => ({
+      messages: [
+        {
+          role: "user" as const,
+          content: {
+            type: "text" as const,
+            text: `You are about to build a Zwift .zwo workout file using the build_zwo_workout tool. Follow these rules:
+
+SEGMENT SELECTION GUIDE:
+- warmup: Progressive ramp at start of workout
+- cooldown: Progressive ramp down at end of workout
+- intervals: Repeated work/rest sets with UNIFORM duration and power — ALWAYS prefer this over multiple steady segments
+- steady: Single constant-power block — only use for one-off efforts or reps that differ from the rest of a set
+- ramp: Linear power change within a block (e.g., ramp test steps)
+- freeride: No power target
+
+CRITICAL RULE — INTERVALS:
+When a workout prescribes repeated work/rest intervals (e.g., "5×3min @ 300w with 2min recovery"), use a SINGLE "intervals" segment with a repeat count. Do NOT create 5 separate steady+steady pairs.
+
+Example — uniform set:
+  "5×3min @ 105% FTP / 2min @ 50% FTP"
+  → { type: "intervals", repeat: 5, onDuration: 180, onPower: { ftpPercent: 105 }, offDuration: 120, offPower: { ftpPercent: 50 } }
+
+Example — mixed set (4 uniform + 1 extended probe):
+  "4×2:15 @ 95% + 1×2:30 @ 95%, all with 4min recovery"
+  → { type: "intervals", repeat: 4, onDuration: 135, onPower: { ftpPercent: 95 }, offDuration: 240, offPower: { ftpPercent: 55 } }
+  → { type: "steady", duration: 150, power: { ftpPercent: 95 } }
+  → { type: "steady", duration: 240, power: { ftpPercent: 55 } }
+
+POWER SPECIFICATION:
+- Use { ftpPercent: N } when prescription is relative to FTP (most common)
+- Use { watts: N } when absolute watts are specified — requires the top-level ftp parameter for conversion
+- Pick one style consistently within a workout
+
+Now call build_zwo_workout with structured segments following these rules.`,
+          },
+        },
+      ],
+    }),
   );
 
   return server;

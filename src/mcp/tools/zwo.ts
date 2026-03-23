@@ -40,14 +40,18 @@ const segmentSchema = z.discriminatedUnion("type", [
     duration: z.number().describe("Duration in seconds"),
     power: powerSpec.describe("Constant power target"),
   }),
-  z.object({
-    type: z.literal("intervals"),
-    repeat: z.number().min(1).describe("Number of interval repeats"),
-    onDuration: z.number().describe("Work interval duration in seconds"),
-    onPower: powerSpec.describe("Work interval power target"),
-    offDuration: z.number().describe("Rest interval duration in seconds"),
-    offPower: powerSpec.describe("Rest interval power target"),
-  }),
+  z
+    .object({
+      type: z.literal("intervals"),
+      repeat: z.number().min(1).describe("Number of interval repeats"),
+      onDuration: z.number().describe("Work interval duration in seconds"),
+      onPower: powerSpec.describe("Work interval power target"),
+      offDuration: z.number().describe("Rest interval duration in seconds"),
+      offPower: powerSpec.describe("Rest interval power target"),
+    })
+    .describe(
+      "Repeated work/rest intervals. PREFERRED over multiple steady segments when reps share the same duration and power. Produces a single compact IntervalsT element in the ZWO file.",
+    ),
   z.object({
     type: z.literal("ramp"),
     duration: z.number().describe("Duration in seconds"),
@@ -77,7 +81,7 @@ export const buildZwoSchema = z.object({
     .array(segmentSchema)
     .min(1)
     .describe(
-      "Ordered workout segments. Types: warmup (ramp up), cooldown (ramp down), steady (constant power), intervals (repeated on/off), ramp (power change), freeride (no target).",
+      "Ordered workout segments. Types: warmup, cooldown, steady, intervals, ramp, freeride. For repeated work/rest sets, ALWAYS use a single 'intervals' segment instead of multiple 'steady' segments. Only use individual 'steady' segments for reps that differ in duration or power from the rest of the set.",
     ),
 });
 
